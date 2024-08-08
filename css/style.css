@@ -1,0 +1,66 @@
+@charset "UTF-8";
+/* style.css */
+/* Quita el padding y margin de html y body */
+html, body {
+  padding: 0;
+  margin: 0;
+  height: 100%; /* Asegura que el body ocupe toda la altura de la pantalla */
+}
+
+/* Ajusta el tamaño de la imagen del logo */
+.logo {
+  width: 40px;
+  height: auto;
+}
+
+/* Configuración del contenedor principal */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Asegura que el contenedor ocupe toda la altura de la pantalla */
+  justify-content: center; /* Centra verticalmente */
+  align-items: center; /* Centra horizontalmente */
+  flex: 1; /* Toma el espacio disponible */
+}
+
+/* Centrar el contenido */
+.title-index {
+  text-align: center; /* Asegura que el texto esté centrado */
+  margin-bottom: 20px; /* Agrega margen inferior para espacio adicional */
+}
+
+/* Estilo para los encabezados */
+.title-index h1, .title-index h2 {
+  color: cornflowerblue;
+  margin: 0; /* Quita el margen para evitar espacio adicional */
+}
+
+.title-productos {
+  margin-top: -200px;
+}
+
+.title-productos h1 {
+  display: flex;
+  color: black;
+  font-size: 40px;
+  text-align: center;
+  text-decoration: dashed;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+.tabla {
+  width: 100%;
+  font-size: 1rem;
+}
+
+/* Estilo para el footer */
+footer {
+  background-color: #333;
+  color: white;
+  padding: 10px 0;
+  text-align: center;
+}
+
+/*# sourceMappingURL=style.css.map */
