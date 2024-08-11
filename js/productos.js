@@ -1,9 +1,9 @@
 class Producto {
-    constructor(marca, tipo, precio, id) {
+    constructor(id, marca, tipo, precio) {
+        this.id = id;
         this.marca = marca;
         this.tipo = tipo;
         this.precio = precio;
-        this.id = id;
     }
 }
 
@@ -13,18 +13,24 @@ class Productos {
     }
 
     agregarProducto() {
+        let id = parseInt(prompt("Ingrese el ID del producto:"));
         let marca = prompt("Ingrese la marca del producto:");
         let tipo = prompt("Ingrese el tipo de producto:");
         let precio = parseFloat(prompt("Ingrese el precio del producto:"));
-        let id = parseInt(prompt("Ingrese el ID del producto:"));
 
-        let productoNuevo = new Producto(marca, tipo, precio, id);
-        this.listaDeProductos.push(productoNuevo);
-        /*Guardo producto en json*/
-        let guardoProducto = JSON.stringify(productoNuevo);
-        localStorage.setItem(`producto_${id}`,guardoProducto);
-        alert(`Producto ${marca} agregado correctamente.`);
-        this.listarProductos();
+        let productoNuevo = new Producto(id, marca, tipo, precio);
+
+        // Verifico si el producto ya está agregado, si no existe lo agrego
+        let verfcoProducto = this.listaDeProductos.some(producto => producto.marca === marca && producto.tipo === tipo);
+        if (verfcoProducto) {
+            alert('El producto que quiere agregar ya existe.');
+        } else {
+            this.listaDeProductos.push(productoNuevo);
+            // Guardo producto en JSON
+            localStorage.setItem(`producto_${id}`, JSON.stringify(productoNuevo));
+            alert(`Producto ${marca} agregado correctamente.`);
+            this.listarProductos();
+        }
     }
 
     buscarProducto() {
@@ -42,36 +48,41 @@ class Productos {
         let productoEncontrado = this.listaDeProductos.find(producto => producto.id === id);
     
         if (!productoEncontrado) {
-            alert(`No se encontro un producto con el ID ${id}.`);
+            alert(`No se encontró un producto con el ID ${id}.`);
             return;
         }
     
-        let confirmacion = confirm(`¿Estas seguro de eliminar el producto con ID ${id}?`);
+        let confirmacion = confirm(`¿Estás seguro de eliminar el producto con ID ${id}?`);
         if (confirmacion) {
             this.listaDeProductos = this.listaDeProductos.filter(producto => producto.id !== id);
+            localStorage.removeItem(`producto_${id}`); // Solo necesitas la clave aquí
             alert("Producto eliminado.");
-            /*Elimino producto en json*/
-            let eliminorProducto = JSON.stringify(productoEncontrado);
-            localStorage.removeItem(`producto_${id}`,eliminorProducto);
-            
             this.listarProductos();
         } else {
             alert("No se eliminó el producto.");
         }
     }
-    
 
-    listarProductos(){
-        for (let i=0; i < this.listaDeProductos.length; i++) {
-            console.table(this.listaDeProductos[i]); 
-            
+    listarProductos() {
+        if (this.listaDeProductos.length > 0) {
+            console.table(this.listaDeProductos);
+        } else {
+            console.log("No hay productos para listar.");
         }
+    }
+
+
+    //Deria ir al modulo de ventas?
+
+    //Funcion para calclular si el precio es con tarjeta hay un 10% de recargo
+    precioConTarjeta(){
+        return this.precio * 1.0;
+    };
+    //funcion para precio al contado, se le descuenta el IVA
+    precioAlContado(){
+        const IVA = 0.21;
+        return this.precio / (1 + IVA);
     };
 }
 
 let miProductos = new Productos();
-miProductos.agregarProducto();
-miProductos.listarProductos();
-miProductos.buscarProducto();
-miProductos.eliminaProducto();
-miProductos.listarProductos();

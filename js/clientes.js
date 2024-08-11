@@ -18,14 +18,27 @@ class Clientes {
         let apellido = prompt("Ingrese el apellido del cliente");
         let telefono = parseInt(prompt("Ingrese el telefono del cliente"));
         let email = prompt("Ingrese el email del cliente");
+        
         // Crear un nuevo cliente
         let clienteNuevo = new Cliente(nombre, apellido, telefono, email);
-        this.listaClientes.push(clienteNuevo);
-        // Guardar en localStorage
-        this.guardoCliente(clienteNuevo);
-        alert(`Cliente ${nombre} agregado correctamente`);
+        
+        // Verificar si el cliente ya existe
+        let verificoCliente = this.listaClientes.some(cliente => cliente.nombre === nombre && cliente.apellido === apellido);
+        
+        if (verificoCliente) {
+            console.log(`El cliente ${nombre} ${apellido} ya existe`);
+            alert(`El cliente ${nombre} ${apellido} ya existe`);
+        } else {
+            // Agregar el cliente si no existe
+            this.listaClientes.push(clienteNuevo);
+            
+            // Guardar en localStorage
+            this.guardoCliente(clienteNuevo);
+            
+            alert(`Cliente ${nombre} ${apellido} agregado correctamente`);
+        }
     }
-
+    
     eliminaCliente() {
         let nombre = prompt("Ingrese el nombre del cliente que quiere eliminar");
         let buscoCliente = this.listaClientes.find(cliente => cliente.nombre === nombre);
@@ -65,6 +78,12 @@ class Clientes {
             }
         }
         return clientes;
+    };
+
+    listarClientes(){
+        this.listaClientes.forEach(cliente => {
+            console.table(cliente)
+        })
     }
 }
 
