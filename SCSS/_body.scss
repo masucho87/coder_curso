@@ -1,0 +1,20 @@
+html, body {
+    padding: 0;
+    margin: 0;
+    height: 100%; 
+}
+
+
+.logo {
+    width: 40px;
+    height: auto;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Asegura que el contenedor ocupe toda la altura de la pantalla */
+    justify-content: center; /* Centra verticalmente */
+    align-items: center; /* Centra horizontalmente */
+    flex: 1; /* Toma el espacio disponible */
+}

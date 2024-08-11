@@ -1,19 +1,15 @@
-@charset "UTF-8";
 /* style.css */
-/* Quita el padding y margin de html y body */
 html, body {
   padding: 0;
   margin: 0;
-  height: 100%; /* Asegura que el body ocupe toda la altura de la pantalla */
+  height: 100%;
 }
 
-/* Ajusta el tamaño de la imagen del logo */
 .logo {
   width: 40px;
   height: auto;
 }
 
-/* Configuración del contenedor principal */
 .wrapper {
   display: flex;
   flex-direction: column;
@@ -23,23 +19,20 @@ html, body {
   flex: 1; /* Toma el espacio disponible */
 }
 
-/* Centrar el contenido */
 .title-index {
-  text-align: center; /* Asegura que el texto esté centrado */
-  margin-bottom: 20px; /* Agrega margen inferior para espacio adicional */
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-/* Estilo para los encabezados */
 .title-index h1, .title-index h2 {
   color: cornflowerblue;
-  margin: 0; /* Quita el margen para evitar espacio adicional */
+  margin: 0;
 }
 
-.title-productos {
+.wrapper .title-productos {
   margin-top: -200px;
 }
-
-.title-productos h1 {
+.wrapper h1 {
   display: flex;
   color: black;
   font-size: 40px;
@@ -49,13 +42,25 @@ html, body {
   align-items: center;
   margin: 0;
 }
-
-.tabla {
+.wrapper .tabla {
   width: 100%;
   font-size: 1rem;
 }
+.wrapper .botones {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+.wrapper .botones button {
+  min-width: 100px;
+}
+.wrapper .botones .btn-buscar {
+  background-color: yellow;
+  color: black;
+  border-color: yellow;
+}
 
-/* Estilo para el footer */
 footer {
   background-color: #333;
   color: white;
