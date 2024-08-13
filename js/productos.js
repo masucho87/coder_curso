@@ -1,7 +1,8 @@
 class Producto {
-    constructor(id, marca, tipo, precio) {
+    constructor(id, marca, nombre, tipo, precio) {
         this.id = id;
         this.marca = marca;
+        this.nombre = nombre;
         this.tipo = tipo;
         this.precio = precio;
     }
@@ -10,52 +11,54 @@ class Producto {
 class Productos {
     constructor() {
         this.listaDeProductos = [];
+        this.idIncremental = 1;
     }
 
     agregarProducto() {
-        let id = parseInt(prompt("Ingrese el ID del producto:"));
         let marca = prompt("Ingrese la marca del producto:");
+        let nombre = prompt("Ingrese el nombre del producto:");
         let tipo = prompt("Ingrese el tipo de producto:");
         let precio = parseFloat(prompt("Ingrese el precio del producto:"));
 
-        let productoNuevo = new Producto(id, marca, tipo, precio);
+        let productoNuevo = new Producto(this.idIncremental, marca, nombre, tipo, precio);
 
-        // Verifico si el producto ya está agregado, si no existe lo agrego
-        let verfcoProducto = this.listaDeProductos.some(producto => producto.marca === marca && producto.tipo === tipo);
+        let verfcoProducto = this.listaDeProductos.some(producto => 
+            producto.marca === marca && producto.nombre === nombre && producto.tipo === tipo);
+        
         if (verfcoProducto) {
             alert('El producto que quiere agregar ya existe.');
         } else {
             this.listaDeProductos.push(productoNuevo);
-            // Guardo producto en JSON
-            localStorage.setItem(`producto_${id}`, JSON.stringify(productoNuevo));
+            localStorage.setItem(`producto_${nombre}`, JSON.stringify(productoNuevo));
             alert(`Producto ${marca} agregado correctamente.`);
+            this.idIncremental++;
             this.actualizarTabla();
         }
     }
 
     buscarProducto() {
-        let id = parseInt(prompt("Ingrese el ID del producto a buscar:"));
-        let productoEncontrado = this.listaDeProductos.find(producto => producto.id === id);
+        let nombre = prompt("Ingrese el nombre del producto a buscar:");
+        let productoEncontrado = this.listaDeProductos.find(producto => producto.nombre === nombre);
         if (productoEncontrado) {
-            alert(`Producto encontrado: ${productoEncontrado.marca}, ${productoEncontrado.tipo}, ${productoEncontrado.precio}`);
+            alert(`Producto encontrado: ${productoEncontrado.marca}, ${productoEncontrado.nombre}, ${productoEncontrado.tipo}, ${productoEncontrado.precio}`);
         } else {
             alert("El producto no existe.");
         }
     }
 
     eliminaProducto() {
-        let id = parseInt(prompt("Ingrese el ID del producto a eliminar:"));
-        let productoEncontrado = this.listaDeProductos.find(producto => producto.id === id);
+        let nombre = prompt("Ingrese el nombre del producto a eliminar:");
+        let productoEncontrado = this.listaDeProductos.find(producto => producto.nombre === nombre);
     
         if (!productoEncontrado) {
-            alert(`No se encontró un producto con el ID ${id}.`);
+            alert(`No se encontró un producto con el nombre ${nombre}.`);
             return;
         }
     
-        let confirmacion = confirm(`¿Estás seguro de eliminar el producto con ID ${id}?`);
+        let confirmacion = confirm(`¿Estás seguro de eliminar el producto con el nombre ${nombre}?`);
         if (confirmacion) {
-            this.listaDeProductos = this.listaDeProductos.filter(producto => producto.id !== id);
-            localStorage.removeItem(`producto_${id}`); // Solo necesitas la clave aquí
+            this.listaDeProductos = this.listaDeProductos.filter(producto => producto.nombre !== nombre);
+            localStorage.removeItem(`producto_${nombre}`);
             alert("Producto eliminado.");
             this.listarProductos();
         } else {
@@ -71,7 +74,6 @@ class Productos {
         }
     }
 
-
     actualizarTabla() {
         const tbody = document.querySelector('.tabla tbody');
         tbody.innerHTML = '';
@@ -81,6 +83,7 @@ class Productos {
                 <tr>
                     <td>${producto.id}</td>
                     <td>${producto.marca}</td>
+                    <td>${producto.nombre}</td>
                     <td>${producto.tipo}</td>
                     <td>${producto.precio}</td>
                 </tr>
@@ -88,19 +91,15 @@ class Productos {
             tbody.innerHTML += fila;
         });
     }
-    
 
-    //Deria ir al modulo de ventas?
+    precioConTarjeta(precio){
+        return precio * 1.10;
+    }
 
-    //Funcion para calclular si el precio es con tarjeta hay un 10% de recargo
-    precioConTarjeta(){
-        return this.precio * 1.0;
-    };
-    //funcion para precio al contado, se le descuenta el IVA
-    precioAlContado(){
+    precioAlContado(precio){
         const IVA = 0.21;
-        return this.precio / (1 + IVA);
-    };
+        return precio / (1 + IVA);
+    }
 }
 
 let miProductos = new Productos();
