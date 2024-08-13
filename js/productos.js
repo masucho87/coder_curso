@@ -29,7 +29,7 @@ class Productos {
             // Guardo producto en JSON
             localStorage.setItem(`producto_${id}`, JSON.stringify(productoNuevo));
             alert(`Producto ${marca} agregado correctamente.`);
-            this.listarProductos();
+            this.actualizarTabla();
         }
     }
 
@@ -71,6 +71,24 @@ class Productos {
         }
     }
 
+
+    actualizarTabla() {
+        const tbody = document.querySelector('.tabla tbody');
+        tbody.innerHTML = '';
+    
+        this.listaDeProductos.forEach(producto => {
+            let fila = `
+                <tr>
+                    <td>${producto.id}</td>
+                    <td>${producto.marca}</td>
+                    <td>${producto.tipo}</td>
+                    <td>${producto.precio}</td>
+                </tr>
+            `;
+            tbody.innerHTML += fila;
+        });
+    }
+    
 
     //Deria ir al modulo de ventas?
 

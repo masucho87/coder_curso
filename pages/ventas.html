@@ -32,9 +32,9 @@
                                 PetShop
                             </a>
                             <ul class="dropdown-menu dropdown-menu-dark">
-                                <li><a class="dropdown-item" href="../pages/productos.html">Proovedores</a></li>
+                                <li><a class="dropdown-item" href="#">Proovedores</a></li>
                                 <li><a class="dropdown-item" href="#">Ventas</a></li>
-                                <li><a class="dropdown-item" href="../pages/clientes.html">Clientes</a></li>
+                                <li><a class="dropdown-item" href="#">Clientes</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
@@ -62,32 +62,30 @@
     </nav>
 </header>
 <main class="wrapper">
-    <section class="title-productos">
+    <section class="title-ventas">
         <h1>
-            Productos
-    </section>
-    <section class="tabla">
-        <div class="table-responsive">
-        <table class="table table-striped table align-middle">
-            <thead class="table-dark">
-            <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Marca</th>
-                <th scope="col">Tipo</th>
-                <th scope="col">Precio</th>
-            </tr>
-            </thead>
-            <tbody>
+            Ventas
+        </h1>
+        <select class="form-select" aria-label="Default select example">
+            <option selected>Seleccione el Producto</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+        </select>
 
-            </tbody>
-        </table>
-        <section class="botones">
-            <button type="button" class="btn btn-success" onclick="miProductos.agregarProducto()">Agregar</button>
-            <button type="button" class="btn btn-danger" onclick="miProductos.eliminaProducto()">Eliminar</button>
-            <button type="button" class="btn btn-light btn-buscar" onclick="miProductos.buscarProducto()">Buscar</button>
-        </section>
-        
-    </div>
+        <select class="form-select" aria-label="Default select example">
+            <option selected>Seleccione el Producto</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+        </select>
+
+        <select class="form-select" aria-label="Default select example">
+            <option selected>Seleccione el Producto</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+        </select>
 
     </section>
 </main>
@@ -120,6 +118,6 @@
 <!-- Scripts de Bootstrap -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <!--Scrip del aplicacion-->
-<script src="../js/productos.js"></script>
+<script src="./js/productos.js"></script>
 </body>
 </html>
