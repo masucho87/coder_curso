@@ -75,6 +75,7 @@ class Productos {
     }
 
     actualizarTabla() {
+        //Accedo a clase tabla con tbody
         const tbody = document.querySelector('.tabla tbody');
         tbody.innerHTML = '';
     

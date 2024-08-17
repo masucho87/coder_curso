@@ -31,10 +31,9 @@ class Clientes {
         } else {
             // Agregar el cliente si no existe
             this.listaClientes.push(clienteNuevo);
-            
             // Guardar en localStorage
             this.guardoCliente(clienteNuevo);
-            
+            this.actualizarTabla();
             alert(`Cliente ${nombre} ${apellido} agregado correctamente`);
         }
     }
@@ -52,6 +51,17 @@ class Clientes {
             this.listaClientes = this.listaClientes.filter(cliente => cliente.nombre !== nombre);
             this.eliminaClienteStorage(nombre);
             alert("Cliente eliminado.");
+        }
+    }
+
+    buscarCliente(){
+        let nombre = prompt("Ingrese el nombre del cliente a buscar");
+        let buscar = this.listaClientes.find(cliente => cliente.nombre === nombre);
+
+        if(!buscar) {
+            alert(`No se encontró el cliente ${nombre}`);
+        } else {
+            alert(`Cliente encontrado: ${buscar.nombre}, ${buscar.apellido}, ${buscar.telefono}, ${buscar.email}`);
         }
     }
 
@@ -85,6 +95,24 @@ class Clientes {
             console.table(cliente)
         })
     }
+
+    actualizarTabla() {
+        //Accedo a clase tabla con tbody
+        const tbody = document.querySelector('.tablaClientes tbody');
+        tbody.innerHTML = '';
+    
+        this.listaClientes.forEach(cliente => {
+            let fila = `
+                <tr>
+                    <td>${cliente.nombre}</td>
+                    <td>${cliente.apellido}</td>
+                    <td>${cliente.telefono}</td>
+                    <td>${cliente.email}</td>
+                </tr>
+            `;
+            tbody.innerHTML += fila;
+        });
+    }
 }
 
-
+let miCliente = new Clientes();
