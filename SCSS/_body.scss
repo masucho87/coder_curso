@@ -17,4 +17,9 @@ html, body {
     justify-content: center; /* Centra verticalmente */
     align-items: center; /* Centra horizontalmente */
     flex: 1; /* Toma el espacio disponible */
+    background-image: url('../img/cartel.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }

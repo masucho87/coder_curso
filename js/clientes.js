@@ -14,8 +14,8 @@ class Clientes {
     }
 
     agregarCliente() {
-        let nombre = prompt("Ingrese el nombre del cliente");
-        let apellido = prompt("Ingrese el apellido del cliente");
+        let nombre = prompt("Ingrese el nombre del cliente").toUpperCase();
+        let apellido = prompt("Ingrese el apellido del cliente").toUpperCase();
         let telefono = parseInt(prompt("Ingrese el telefono del cliente"));
         let email = prompt("Ingrese el email del cliente");
         

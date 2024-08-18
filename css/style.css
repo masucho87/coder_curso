@@ -17,16 +17,26 @@ html, body {
   justify-content: center; /* Centra verticalmente */
   align-items: center; /* Centra horizontalmente */
   flex: 1; /* Toma el espacio disponible */
+  background-image: url("../img/cartel.jpeg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
-.title-index {
+.wrapper .title-index {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 500px;
 }
-
-.title-index h1, .title-index h2 {
-  color: cornflowerblue;
+.wrapper .title-index h1 {
+  color: rgb(76, 75, 131);
   margin: 0;
+  font-size: 80px;
+  transition: color 1.5s ease-in-out, transform 1.5s ease-in-out;
+}
+.wrapper .title-index h1:hover {
+  color: rgb(113, 49, 49);
+  transform: scale(1.1);
 }
 
 .wrapper .title-productos {
