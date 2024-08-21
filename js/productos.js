@@ -1,5 +1,5 @@
 class Producto {
-    constructor(id, marca, nombre, tipo,stock, precioFabrica, precioAlContado, precioConTarjeta) {
+    constructor(id, marca, nombre, tipo, stock, precioFabrica, precioAlContado, precioConTarjeta) {
         this.id = id;
         this.marca = marca;
         this.nombre = nombre;
@@ -11,94 +11,132 @@ class Producto {
     }
 }
 
-
 class Productos {
     constructor() {
         const productosGuardados = JSON.parse(localStorage.getItem('productos')) || [];
         this.listaDeProductos = productosGuardados;
-        //this.listaDeProductos = [];
-        //this.idIncremental = 1;
         this.idIncremental = productosGuardados.length > 0 ? productosGuardados[productosGuardados.length - 1].id + 1 : 1;
+        this.inicializarFormulario();
+        this.inicializarBusqueda(); 
+        this.productoModificadoId = null;
     }
 
-    agregarProducto() {
-        let marca = prompt("Ingrese la marca del producto:").toUpperCase();
-        let nombre = prompt("Ingrese el nombre del producto:").toUpperCase();
-        let tipo = prompt("Ingrese el tipo de producto:").toUpperCase();
-        let stock = parseFloat(prompt("Ingrese el stock ingresado en KG: "));
-        let precioFabrica = parseInt(prompt("Ingrese el precio de fábrica del producto:"));
+    inicializarFormulario() {
+        document.getElementById('formAgregarProducto').addEventListener('submit', (event) => {
+            event.preventDefault();
+            this.procesarFormulario();
+        });
+    }
 
-        // Calcula los diferentes precios
+    inicializarBusqueda() {
+        document.getElementById('buscarProductoInput').addEventListener('input', () => {
+            this.buscarProducto();
+        });
+    }
+
+    procesarFormulario() {
+        let marca = document.getElementById('marcaProducto').value;
+        let nombre = document.getElementById('nombreProducto').value;
+        let tipo = document.getElementById('tipoProducto').value;
+        let stock = document.getElementById('stockProducto').value;
+        let precioFabrica = document.getElementById('precioFabrica').value;
+
         let precioConTarjeta = this.precioConTarjeta(precioFabrica);
         let precioAlContado = this.precioAlContado(precioFabrica);
 
-        // Crear una instancia del producto con todos los precios
-        let productoNuevo = new Producto(this.idIncremental, marca, nombre, tipo, stock, precioFabrica, precioAlContado, precioConTarjeta);
+        if (this.productoModificadoId) {
+            // Modificar producto existente
+            let productoModificado = this.listaDeProductos.find(producto => producto.id === this.productoModificadoId);
+            productoModificado.marca = marca;
+            productoModificado.nombre = nombre;
+            productoModificado.tipo = tipo;
+            productoModificado.stock = stock;
+            productoModificado.precioFabrica = precioFabrica;
+            productoModificado.precioConTarjeta = precioConTarjeta;
+            productoModificado.precioAlContado = precioAlContado;
 
-        let verfcoProducto = this.listaDeProductos.some(producto => 
-            producto.marca === marca && producto.nombre === nombre && producto.tipo === tipo);
-        
-        if (verfcoProducto) {
-            alert('El producto que quiere agregar ya existe.');
+            // Limpiar ID de producto modificado
+            this.productoModificadoId = null;
         } else {
+            // Agregar nuevo producto
+            let productoNuevo = new Producto(this.idIncremental, marca, nombre, tipo, stock, precioFabrica, precioAlContado, precioConTarjeta);
             this.listaDeProductos.push(productoNuevo);
-            localStorage.setItem('productos', JSON.stringify(this.listaDeProductos));
-            alert(`Producto ${marca} agregado correctamente.`);
             this.idIncremental++;
-            this.actualizarTabla();
         }
+
+        // Actualizar el localStorage y la tabla
+        localStorage.setItem('productos', JSON.stringify(this.listaDeProductos));
+        alert(`Producto ${marca} ${this.productoModificadoId ? 'modificado' : 'agregado'} correctamente.`);
+        this.actualizarTabla();
+
+        // Cerrar el modal
+        var modal = bootstrap.Modal.getInstance(document.getElementById('agregarProductoModal'));
+        modal.hide();
     }
 
+    verificoProducto(marca, nombre, tipo) {
+        return this.listaDeProductos.some(producto => producto.marca === marca && producto.nombre === nombre && producto.tipo === tipo);
+    }
 
     buscarProducto() {
-        let nombre = prompt("Ingrese el nombre del producto a buscar:");
-        let productoEncontrado = this.listaDeProductos.find(producto => producto.nombre === nombre);
-        if (productoEncontrado) {
-            alert(`Producto encontrado: ${productoEncontrado.marca}, ${productoEncontrado.nombre}, ${productoEncontrado.tipo},${productoEncontrado.stock}, ${productoEncontrado.precio}`);
-            return this.listaDeProductos.find(producto => producto.nombre === nombre);
-        } else {
-            alert("El producto no existe.");
-        }
+        const query = document.getElementById('buscarProductoInput').value.toLowerCase();
+        const filas = document.querySelectorAll('.tabla tbody tr');
+
+        filas.forEach(fila => {
+            const nombreProducto = fila.querySelector('td:nth-child(3)').textContent.toLowerCase();
+
+            if (nombreProducto.includes(query)) {
+                fila.style.display = ''; // Muestra la fila si coincide con la búsqueda
+            } else {
+                fila.style.display = 'none'; // Oculta la fila si no coincide
+            }
+        });
     }
 
-    eliminaProducto() {
-        let nombre = prompt("Ingrese el nombre del producto a eliminar:");
-        if (!nombre) {
-            alert("No se encontro un nombre de producto válido.");
-            return;
-        }
+    eliminaProducto(id) {
+        // Abre el modal de confirmación
+        const confirmarEliminar = new bootstrap.Modal(document.getElementById('confirmarEliminar'));
+        confirmarEliminar.show();
     
-        let productoEncontrado = this.listaDeProductos.find(producto => producto.nombre === nombre);
-        
-        if (!productoEncontrado) {
-            alert(`No se encontró un producto con el nombre ${nombre}.`);
-            return;
-        }
-        
-        let confirmacion = confirm(`¿Estás seguro de eliminar el producto con el nombre ${nombre}?`);
-        if (confirmacion) {
-            this.listaDeProductos = this.listaDeProductos.filter(producto => producto.nombre !== nombre);
+        // Maneja la confirmación de la eliminación
+        document.getElementById('confirmarEliminarBtn').onclick = () => {
+            // Elimina el producto de la lista y del localStorage
+            this.listaDeProductos = this.listaDeProductos.filter(producto => producto.id !== id);
             localStorage.setItem('productos', JSON.stringify(this.listaDeProductos));
-            alert("Producto eliminado.");
             this.actualizarTabla();
-        } else {
-            alert("No se eliminó el producto.");
-        }
-    }
     
+            // Cierra el modal después de la eliminación
+            confirmarEliminar.hide();
+        };
+    }
 
-    listarProductos() {
-        if (this.listaDeProductos.length > 0) {
-            console.table(this.listaDeProductos);
-        } else {
-            console.log("No hay productos para listar.");
+    mostrarModalModificacion(id) {
+        const productoEncontrado = this.listaDeProductos.find(producto => producto.id === id);
+
+        if (!productoEncontrado) {
+            console.error(`No se encontró un producto con el id ${id}.`);
+            return;
         }
+
+        // Llenar el formulario con los datos actuales del producto
+        document.getElementById('marcaProducto').value = productoEncontrado.marca;
+        document.getElementById('nombreProducto').value = productoEncontrado.nombre;
+        document.getElementById('tipoProducto').value = productoEncontrado.tipo;
+        document.getElementById('stockProducto').value = productoEncontrado.stock;
+        document.getElementById('precioFabrica').value = productoEncontrado.precioFabrica;
+
+        // Establecer el ID del producto a modificar
+        this.productoModificadoId = id;
+
+        // Mostrar el modal
+        const modal = new bootstrap.Modal(document.getElementById('agregarProductoModal'));
+        modal.show();
     }
 
     actualizarTabla() {
         const tbody = document.querySelector('.tabla tbody');
         tbody.innerHTML = '';
-
+    
         this.listaDeProductos.forEach(producto => {
             let fila = `
                 <tr>
@@ -110,23 +148,41 @@ class Productos {
                     <td>${producto.precioFabrica}</td>
                     <td>${producto.precioAlContado}</td>
                     <td>${producto.precioConTarjeta}</td>
+                    <td><button class="btn-eliminar" data-id="${producto.id}">Eliminar</button></td>
+                    <td><button class="btn-modificar" data-id="${producto.id}">Modificar</button></td>
                 </tr>
             `;
             tbody.innerHTML += fila;
         });
+    
+        // listener a todos los botones de eliminacion
+        document.querySelectorAll('.btn-eliminar').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const id = parseInt(event.target.getAttribute('data-id'));
+                this.eliminaProducto(id);
+            });
+        });
+
+        // listener a todos los botones de modificacion
+        document.querySelectorAll('.btn-modificar').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const id = parseInt(event.target.getAttribute('data-id'));
+                this.mostrarModalModificacion(id);
+            });
+        });
     }
 
-    precioConTarjeta(precioFabrica){
+    precioConTarjeta(precioFabrica) {
         const IVA = 0.21;
         const recargoTarjeta = 0.10;
-        
         return precioFabrica * (1 + IVA) * (1 + recargoTarjeta);
     }
 
-    precioAlContado(precioFabrica){
+    precioAlContado(precioFabrica) {
         const IVA = 0.21;
         return precioFabrica * (1 + IVA);
     }
 }
 
 let miProductos = new Productos();
+miProductos.actualizarTabla();

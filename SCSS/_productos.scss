@@ -1,18 +1,78 @@
 .wrapper {
     .title-productos {
         margin-top: -200px;
+
+        h1 {
+            font-size: 50px;
+            color: #b7f302;
+            text-align: center;
+            text-decoration: underline  #02f31e;
+            margin: 20px 0;
+        }
+        
+        h1.animate__animated {
+            animation-duration: 1.5s;
+            animation-delay: 0.5s;
+        }
+        
     }
 
-    h1 {
+
+    #buscarProductoInput {
         display: flex;
-        color: black;
-        font-size: 40px;
-        text-align: center;
-        text-decoration: dashed;
-        justify-content: center;
-        align-items: center;
-        margin: 0;
+        width: 100%; 
+        padding: 10px 15px; 
+        font-size: 16px; 
+        border: 2px solid #ccc; 
+        border-radius: 5px; 
+        outline: none; 
+        transition: border-color 0.3s ease-in-out; 
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
     }
+    
+
+    #buscarProductoInput:focus {
+        border-color: #007bff; 
+        box-shadow: 0 0 8px rgba(0, 123, 255, 0.5); 
+    }
+    
+    /* Estilo para el placeholder */
+    #buscarProductoInput::placeholder {
+        color: #888;
+        font-style: italic;
+    }
+
+    .btn-eliminar {
+        background-color: #ff4d4d; /* Color de fondo rojo */
+        color: white; /* Color de texto blanco */
+        border: none; /* Sin borde */
+        padding: 10px 20px; /* Espaciado interno */
+        font-size: 16px; /* Tamaño de la fuente */
+        cursor: pointer; /* Cambia el cursor al pasar por encima */
+        border-radius: 5px; /* Bordes redondeados */
+        transition: background-color 0.3s ease; /* Transición suave */
+    }
+    
+    .btn-eliminar:hover {
+        background-color: #e60000; /* Rojo más oscuro al pasar el mouse */
+    }
+    
+
+    .btn-modificar {
+        background-color: #f8fc04; /* Color de fondo rojo */
+        color: black; /* Color de texto blanco */
+        border: none; /* Sin borde */
+        padding: 10px 20px; /* Espaciado interno */
+        font-size: 16px; /* Tamaño de la fuente */
+        cursor: pointer; /* Cambia el cursor al pasar por encima */
+        border-radius: 5px; /* Bordes redondeados */
+        transition: background-color 0.3s ease; /* Transición suave */
+    }
+    
+    .btn-eliminar:hover {
+        background-color: #edf90a; /* Rojo más oscuro al pasar el mouse */
+    }
+    
 
     .tabla {
         width: 100%;
