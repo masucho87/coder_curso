@@ -30,7 +30,7 @@ html, body {
   margin-bottom: 500px;
 }
 .wrapper .title-index h1 {
-  color: rgb(76, 75, 131);
+  color: #C03FB2;
   margin: 0;
   font-size: 80px;
   transition: color 1.5s ease-in-out, transform 1.5s ease-in-out;
@@ -124,12 +124,12 @@ html, body {
 .wrapper .title-productos {
   margin-top: -200px;
 }
-.wrapper h1 {
+.wrapper .title-productos h1 {
   display: flex;
-  color: black;
-  font-size: 40px;
+  color: #3AAC9D;
+  font-size: 50px;
   text-align: center;
-  text-decoration: dashed;
+  text-decoration: underline;
   justify-content: center;
   align-items: center;
   margin: 0;

@@ -24,7 +24,7 @@ class Clientes {
 
     inicializarFormulario() {
         const form = document.getElementById('formAgregarCliente');
-        const addMascotaBtn = document.getElementById('addMascotaBtn');
+        const agregarMascota = document.getElementById('agregarMascota');
         const botonAgregar = document.getElementById('botonAgregar');
 
         if (form) {
@@ -36,8 +36,8 @@ class Clientes {
             console.error('No se encontró el formulario.');
         }
 
-        if (addMascotaBtn) {
-            addMascotaBtn.addEventListener('click', () => {
+        if (agregarMascota) {
+            agregarMascota.addEventListener('click', () => {
                 this.agregarMascotaCampo();
             });
         } else {
@@ -46,8 +46,9 @@ class Clientes {
 
         if (botonAgregar) {
             botonAgregar.addEventListener('click', () => {
+                this.limpiarFormulario();
                 this.abrirModalAgregar();
-            });
+            });            
         } else {
             console.error('No se encontró el botón de agregar cliente.');
         }
@@ -143,7 +144,7 @@ class Clientes {
             return;
         }
         tbody.innerHTML = '';
-
+    
         this.listaClientes.forEach(cliente => {
             let fila = `
                 <tr>
@@ -154,64 +155,85 @@ class Clientes {
                     <td>${cliente.email}</td>
                     <td>${cliente.mascotas.join(', ')}</td>
                     <td>
-                        <button class="btn btn-warning btn-sm" onclick="misClientes.seleccionarCliente(${cliente.id})">Editar</button>
-                        <button class="btn btn-danger btn-sm" onclick="misClientes.eliminarCliente(${cliente.id})">Eliminar</button>
+                        <button class="btn btn-primary btn-modificar" data-id="${cliente.id}">Modificar</button>
+                        <button class="btn btn-danger btn-eliminar" data-id="${cliente.id}">Eliminar</button>
                     </td>
                 </tr>
             `;
             tbody.innerHTML += fila;
         });
+    
+        this.agregarEventosBotones();
+    }
+    
+    agregarEventosBotones() {
+        document.querySelectorAll('.btn-modificar').forEach(btn => {
+            btn.addEventListener('click', (event) => {
+                const id = parseInt(event.target.getAttribute('data-id'));
+                this.abrirModalModificar(id);
+            });
+        });
+    
+        document.querySelectorAll('.btn-eliminar').forEach(btn => {
+            btn.addEventListener('click', (event) => {
+                const id = parseInt(event.target.getAttribute('data-id'));
+                this.confirmarEliminacion(id);
+            });
+        });
     }
 
-    seleccionarCliente(id) {
+    abrirModalModificar(id) {
         const cliente = this.listaClientes.find(cliente => cliente.id === id);
-        if (cliente) {
-            document.getElementById('nombreCliente').value = cliente.nombre;
-            document.getElementById('apellidoCliente').value = cliente.apellido;
-            document.getElementById('telefonoCliente').value = cliente.telefono;
-            document.getElementById('emailCliente').value = cliente.email;
-
-            const mascotasContainer = document.getElementById('mascotasContainer');
-            if (mascotasContainer) {
-                mascotasContainer.innerHTML = '';
-                cliente.mascotas.forEach(mascota => {
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.className = 'form-control mb-1';
-                    input.name = 'mascotas';
-                    input.value = mascota;
-                    mascotasContainer.appendChild(input);
-                });
-            } else {
-                console.error('No se encontró el contenedor de mascotas.');
-            }
-
-            const modal = new bootstrap.Modal(document.getElementById('agregarCliente'));
-            if (modal) {
-                modal.show();
-            }
-
-            document.querySelector('#formAgregarCliente button[type="submit"]').textContent = 'Guardar cambios';
-            this.clienteModificadoId = cliente.id;
+        if (!cliente) {
+            console.error('Cliente no encontrado.');
+            return;
         }
+    
+        this.clienteModificadoId = id;
+    
+        document.getElementById('nombreCliente').value = cliente.nombre;
+        document.getElementById('apellidoCliente').value = cliente.apellido;
+        document.getElementById('telefonoCliente').value = cliente.telefono;
+        document.getElementById('emailCliente').value = cliente.email;
+    
+        const mascotasContainer = document.getElementById('mascotasContainer');
+        mascotasContainer.innerHTML = '';
+        cliente.mascotas.forEach(mascota => {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'form-control mb-1';
+            input.name = 'mascotas';
+            input.value = mascota;
+            input.placeholder = 'Nombre de la mascota';
+            input.required = true;
+            mascotasContainer.appendChild(input);
+        });
+    
+        document.querySelector('#formAgregarCliente button[type="submit"]').textContent = 'Modificar';
+    
+        const modal = new bootstrap.Modal(document.getElementById('agregarCliente'));
+        modal.show();
     }
 
-    eliminarCliente(id) {
-        const confirmarEliminar = new bootstrap.Modal(document.getElementById('confirmarEliminar'));
-        confirmarEliminar.show();
+    confirmarEliminacion(id) {
+        const confirmarModal = new bootstrap.Modal(document.getElementById('confirmarEliminar'));
+        confirmarModal.show();
     
         document.getElementById('confirmarEliminarBtn').onclick = () => {
-            this.listaClientes = this.listaClientes.filter(cliente => cliente.id !== id);
-            localStorage.setItem('clientes', JSON.stringify(this.listaClientes));
-            this.actualizarTabla();
-            confirmarEliminar.hide();
+            this.eliminarCliente(id);
+            confirmarModal.hide();
         };
     }
-
-    mostrarModalMensaje(mensaje) {
+    
+    eliminarCliente(id) {
+        this.listaClientes = this.listaClientes.filter(cliente => cliente.id !== id);
+        localStorage.setItem('clientes', JSON.stringify(this.listaClientes));
+        this.actualizarTabla();
+    }
+    
+    mostrarMensaje(mensaje) {
         const modalMensaje = new bootstrap.Modal(document.getElementById('modalMensaje'));
-        const mensajeElemento = document.getElementById('mensajeContenido');
-        mensajeElemento.textContent = mensaje;
+        document.getElementById('mensajeContenido').textContent = mensaje;
         modalMensaje.show();
     }
 }

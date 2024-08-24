@@ -66,7 +66,10 @@ class Productos {
 
         // Actualizar el localStorage y la tabla
         localStorage.setItem('productos', JSON.stringify(this.listaDeProductos));
-        alert(`Producto ${marca} ${this.productoModificadoId ? 'modificado' : 'agregado'} correctamente.`);
+
+// Mostrar el mensaje en el modal
+        const mensaje = `Producto ${marca} ${this.productoModificadoId ? 'modificado' : 'agregado'} correctamente.`;
+        this.mostrarModalMensaje(mensaje);
         this.actualizarTabla();
 
         // Cerrar el modal
@@ -172,11 +175,22 @@ class Productos {
         });
     }
 
+    mostrarModalMensaje(mensaje) {
+        const mensajeElemento = document.getElementById('mensajeContenido');
+        mensajeElemento.textContent = mensaje;
+        const modal = new bootstrap.Modal(document.getElementById('modalMensaje'));
+        modal.show();
+    }
+    
+
     precioConTarjeta(precioFabrica) {
         const IVA = 0.21;
         const recargoTarjeta = 0.10;
-        return precioFabrica * (1 + IVA) * (1 + recargoTarjeta);
+        const precioFinal = precioFabrica * (1 + IVA) * (1 + recargoTarjeta);
+        //Se redonde el precio
+        return Math.round(precioFinal * 100) / 100;
     }
+    
 
     precioAlContado(precioFabrica) {
         const IVA = 0.21;

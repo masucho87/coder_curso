@@ -37,16 +37,16 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-dark">
                                 <li><a class="dropdown-item" href="../pages/productos.html">Proovedores</a></li>
-                                <li><a class="dropdown-item" href="#">Ventas</a></li>
+                                <!--<li><a class="dropdown-item" href="#">Ventas</a></li>-->
                                 <li><a class="dropdown-item" href="../pages/clientes.html">Clientes</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
-                                <li><a class="dropdown-item" href="#">Caja</a></li>
+                                <!--<li><a class="dropdown-item" href="#">Caja</a></li>-->
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <!-- <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Bañadero
                             </a>
                             <ul class="dropdown-menu dropdown-menu-dark">
@@ -59,7 +59,7 @@
                     <form class="d-flex mt-3" role="search">
                         <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
                         <button class="btn btn-success" type="submit">Search</button>
-                    </form>
+                    </form> -->
                 </div>
             </div>
         </div>
@@ -180,6 +180,24 @@
     </div>
 </div>
 <div id="mensajeError" class="alert alert-danger d-none"></div>
+
+<!--Modal Mesnsaje -->
+<div class="modal fade" id="modalMensaje" tabindex="-1" aria-labelledby="mensajeLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="mensajeLabel">Información</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="mensajeContenido">
+        <!-- El mensaje se actualizará dinámicamente -->
+        </div>
+        <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+        </div>
+    </div>
+    </div>
+</div>
 
 </main>
 <footer class="bg-dark text-light pt-5 pb-4">

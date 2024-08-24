@@ -1,18 +1,19 @@
 .wrapper {
     .title-productos {
         margin-top: -200px;
+
+        h1 {
+            display: flex;
+            color: #3AAC9D;
+            font-size: 50px;
+            text-align: center;
+            text-decoration:underline;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
     }
 
-    h1 {
-        display: flex;
-        color: black;
-        font-size: 40px;
-        text-align: center;
-        text-decoration: dashed;
-        justify-content: center;
-        align-items: center;
-        margin: 0;
-    }
     .sidebar {
         position: fixed;
         top: 0;
