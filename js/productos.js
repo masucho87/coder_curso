@@ -73,7 +73,7 @@ class Productos {
         this.actualizarTabla();
 
         // Cerrar el modal
-        var modal = bootstrap.Modal.getInstance(document.getElementById('agregarProductoModal'));
+        let modal = bootstrap.Modal.getInstance(document.getElementById('agregarProductoModal'));
         modal.hide();
     }
 
@@ -97,7 +97,7 @@ class Productos {
     }
 
     eliminaProducto(id) {
-        // Abre el modal de confirmación
+        // Abre el modal de confirmacion
         const confirmarEliminar = new bootstrap.Modal(document.getElementById('confirmarEliminar'));
         confirmarEliminar.show();
     
@@ -108,7 +108,7 @@ class Productos {
             localStorage.setItem('productos', JSON.stringify(this.listaDeProductos));
             this.actualizarTabla();
     
-            // Cierra el modal después de la eliminación
+            // Cierra el modal después de la eliminacion
             confirmarEliminar.hide();
         };
     }
@@ -121,14 +121,14 @@ class Productos {
             return;
         }
 
-        // Llenar el formulario con los datos actuales del producto
+        // Llena el formulario con los datos del producto
         document.getElementById('marcaProducto').value = productoEncontrado.marca;
         document.getElementById('nombreProducto').value = productoEncontrado.nombre;
         document.getElementById('tipoProducto').value = productoEncontrado.tipo;
         document.getElementById('stockProducto').value = productoEncontrado.stock;
         document.getElementById('precioFabrica').value = productoEncontrado.precioFabrica;
 
-        // Establecer el ID del producto a modificar
+        // Establece el ID del producto a modificar
         this.productoModificadoId = id;
 
         // Mostrar el modal

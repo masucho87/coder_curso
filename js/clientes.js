@@ -19,6 +19,7 @@ class Clientes {
         document.addEventListener('DOMContentLoaded', () => {
             this.inicializarFormulario();
             this.actualizarTabla();
+            this.inicializarBusqueda();
         });
     }
 
@@ -223,6 +224,48 @@ class Clientes {
             this.eliminarCliente(id);
             confirmarModal.hide();
         };
+    }
+
+    inicializarBusqueda() {
+        const formBuscar = document.getElementById('formBuscarCliente');
+        const resultadosBusqueda = document.getElementById('resultadosBusqueda');
+
+        if (formBuscar) {
+            formBuscar.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const criterio = document.getElementById('criterioBusqueda').value.trim().toLowerCase();
+                this.buscarCliente(criterio, resultadosBusqueda);
+            });
+        } else {
+            console.error('No se encontró el formulario de búsqueda.');
+        }
+    }
+
+
+    buscarCliente(criterio, resultadosBusqueda) {
+        resultadosBusqueda.innerHTML = '';
+
+        if (criterio === '') {
+            resultadosBusqueda.textContent = 'Por favor, ingrese un criterio de búsqueda.';
+            return;
+        }
+
+        const resultados = this.listaClientes.filter(cliente => 
+            cliente.nombre.toLowerCase().includes(criterio) ||
+            cliente.apellido.toLowerCase().includes(criterio) ||
+            cliente.telefono.includes(criterio) ||
+            cliente.email.toLowerCase().includes(criterio)
+        );
+
+        if (resultados.length > 0) {
+            resultados.forEach(cliente => {
+                const div = document.createElement('div');
+                div.textContent = `ID: ${cliente.id}, Nombre: ${cliente.nombre}, Apellido: ${cliente.apellido}, Teléfono: ${cliente.telefono}, Email: ${cliente.email}, Mascotas: ${cliente.mascotas.join(', ')}`;
+                resultadosBusqueda.appendChild(div);
+            });
+        } else {
+            resultadosBusqueda.textContent = 'No se encontraron clientes que coincidan con el criterio de búsqueda.';
+        }
     }
     
     eliminarCliente(id) {
