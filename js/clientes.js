@@ -11,17 +11,43 @@ class Cliente {
 
 class Clientes {
     constructor() {
-        this.listaClientes = JSON.parse(localStorage.getItem('clientes')) || [];
-        this.idIncremental = this.listaClientes.length > 0 ? this.listaClientes[this.listaClientes.length - 1].id + 1 : 1;
+        this.listaClientes = [];
+        this.idIncremental = 1;
         this.mascotaCount = 0;
         this.clienteModificadoId = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             this.inicializarFormulario();
+            this.cargarClientes();
             this.actualizarTabla();
             this.inicializarBusqueda();
         });
     }
+
+    async cargarClientes() {
+        try {
+            const response = await fetch('../json/clientes.json');
+            if (!response.ok) {
+                throw new Error('No se pudo cargar el archivo JSON.');
+            }
+            const clientesJSON = await response.json();
+            console.log('Datos cargados:', clientesJSON);
+            this.listaClientes = clientesJSON.map(cliente => new Cliente(
+                cliente.id,
+                cliente.nombre,
+                cliente.apellido,
+                cliente.telefono,
+                cliente.email,
+                cliente.mascotas || []
+            ));
+            console.log('Lista de clientes:', this.listaClientes);
+            this.idIncremental = this.listaClientes.length > 0 ? this.listaClientes[this.listaClientes.length - 1].id + 1 : 1;
+            this.actualizarTabla(); //Actualizo la tabla para las llamadas
+        } catch (error) {
+            console.error('Error al cargar clientes:', error);
+        }
+    }
+    
 
     inicializarFormulario() {
         const form = document.getElementById('formAgregarCliente');
@@ -77,59 +103,64 @@ class Clientes {
         }
     }
 
-    procesarFormulario() {
-        let nombre = document.getElementById('nombreCliente').value.trim();
-        let apellido = document.getElementById('apellidoCliente').value.trim();
-        let telefono = document.getElementById('telefonoCliente').value.trim();
-        let email = document.getElementById('emailCliente').value.trim();
-    
-        let mascotas = Array.from(document.querySelectorAll('#mascotasContainer input[name="mascotas"]'))
-            .map(input => input.value.trim());
-    
-        const clienteExistente = this.listaClientes.find(cliente => 
-            cliente.nombre === nombre && cliente.apellido === apellido && cliente.id !== this.clienteModificadoId);
-    
-        const mensajeError = document.getElementById('mensajeError');
-    
-        if (mensajeError) {
-            if (clienteExistente) {
-                mensajeError.textContent = 'El cliente con el mismo nombre y apellido ya existe. Por favor, ingresa datos diferentes.';
-                mensajeError.classList.remove('d-none');
-                return;
+    async procesarFormulario() {
+        try {
+            let nombre = document.getElementById('nombreCliente').value.trim();
+            let apellido = document.getElementById('apellidoCliente').value.trim();
+            let telefono = document.getElementById('telefonoCliente').value.trim();
+            let email = document.getElementById('emailCliente').value.trim();
+        
+            let mascotas = Array.from(document.querySelectorAll('#mascotasContainer input[name="mascotas"]'))
+                .map(input => input.value.trim());
+        
+            const clienteExistente = this.listaClientes.find(cliente => 
+                cliente.nombre === nombre && cliente.apellido === apellido && cliente.id !== this.clienteModificadoId);
+        
+            const mensajeError = document.getElementById('mensajeError');
+        
+            if (mensajeError) {
+                if (clienteExistente) {
+                    mensajeError.textContent = 'El cliente con el mismo nombre y apellido ya existe. Por favor, ingresa datos diferentes.';
+                    mensajeError.classList.remove('d-none');
+                    return;
+                } else {
+                    mensajeError.classList.add('d-none');
+                }
             } else {
-                mensajeError.classList.add('d-none');
+                console.error('No se encontró el elemento mensajeError.');
             }
-        } else {
-            console.error('No se encontró el elemento mensajeError.');
-        }
-    
-        if (this.clienteModificadoId) {
-            let clienteModificado = this.listaClientes.find(cliente => cliente.id === this.clienteModificadoId);
-    
-            if (clienteModificado) {
-                clienteModificado.nombre = nombre;
-                clienteModificado.apellido = apellido;
-                clienteModificado.telefono = telefono;
-                clienteModificado.email = email;
-                clienteModificado.mascotas = mascotas;
+        
+            if (this.clienteModificadoId) {
+                let clienteModificado = this.listaClientes.find(cliente => cliente.id === this.clienteModificadoId);
+        
+                if (clienteModificado) {
+                    clienteModificado.nombre = nombre;
+                    clienteModificado.apellido = apellido;
+                    clienteModificado.telefono = telefono;
+                    clienteModificado.email = email;
+                    clienteModificado.mascotas = mascotas;
+                }
+        
+                this.clienteModificadoId = null;
+            } else {
+                let clienteNuevo = new Cliente(this.idIncremental, nombre, apellido, telefono, email, mascotas);
+                this.listaClientes.push(clienteNuevo);
+                this.idIncremental++;
             }
-    
-            this.clienteModificadoId = null;
-        } else {
-            let clienteNuevo = new Cliente(this.idIncremental, nombre, apellido, telefono, email, mascotas);
-            this.listaClientes.push(clienteNuevo);
-            this.idIncremental++;
+        
+            localStorage.setItem('clientes', JSON.stringify(this.listaClientes));
+            this.actualizarTabla();
+        
+            const modal = bootstrap.Modal.getInstance(document.getElementById('agregarCliente'));
+            if (modal) {
+                modal.hide();
+            }
+        
+            this.limpiarFormulario();
+        } catch (error) {
+            console.error('Error al procesar el formulario:', error);
+            this.mostrarMensaje(`Error al procesar el formulario: ${error.message}`);
         }
-    
-        localStorage.setItem('clientes', JSON.stringify(this.listaClientes));
-        this.actualizarTabla();
-    
-        const modal = bootstrap.Modal.getInstance(document.getElementById('agregarCliente'));
-        if (modal) {
-            modal.hide();
-        }
-    
-        this.limpiarFormulario();
     }
     
     limpiarFormulario() {
@@ -139,6 +170,7 @@ class Clientes {
     }
 
     actualizarTabla() {
+        console.log('Actualizando tabla...');
         const tbody = document.querySelector('.tablaClientes .table tbody');
         if (!tbody) {
             console.error('No se encontró el tbody.');
@@ -155,10 +187,6 @@ class Clientes {
                     <td>${cliente.telefono}</td>
                     <td>${cliente.email}</td>
                     <td>${cliente.mascotas.join(', ')}</td>
-                    <td>
-                        <button class="btn btn-primary btn-modificar" data-id="${cliente.id}">Modificar</button>
-                        <button class="btn btn-danger btn-eliminar" data-id="${cliente.id}">Eliminar</button>
-                    </td>
                 </tr>
             `;
             tbody.innerHTML += fila;
@@ -166,7 +194,6 @@ class Clientes {
     
         this.agregarEventosBotones();
     }
-    
     agregarEventosBotones() {
         document.querySelectorAll('.btn-modificar').forEach(btn => {
             btn.addEventListener('click', (event) => {
@@ -240,7 +267,6 @@ class Clientes {
             console.error('No se encontró el formulario de búsqueda.');
         }
     }
-
 
     buscarCliente(criterio, resultadosBusqueda) {
         resultadosBusqueda.innerHTML = '';

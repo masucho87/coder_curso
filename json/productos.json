@@ -1,0 +1,22 @@
+[
+    {
+        "id": 1,
+        "marca": "Marca A",
+        "nombre": "Producto A",
+        "tipo": "Tipo A",
+        "stock": 10,
+        "precioFabrica": 100,
+        "precioAlContado": 121,
+        "precioConTarjeta": 133.1
+    },
+    {
+        "id": 2,
+        "marca": "Marca B",
+        "nombre": "Producto B",
+        "tipo": "Tipo B",
+        "stock": 20,
+        "precioFabrica": 200,
+        "precioAlContado": 242,
+        "precioConTarjeta": 266.2
+    }
+]

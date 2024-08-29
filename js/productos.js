@@ -13,18 +13,50 @@ class Producto {
 
 class Productos {
     constructor() {
-        const productosGuardados = JSON.parse(localStorage.getItem('productos')) || [];
-        this.listaDeProductos = productosGuardados;
-        this.idIncremental = productosGuardados.length > 0 ? productosGuardados[productosGuardados.length - 1].id + 1 : 1;
-        this.inicializarFormulario();
-        this.inicializarBusqueda(); 
+        // Cargar productos desde productos.json
+        this.listaDeProductos = [];
+        this.idIncremental = 1;
         this.productoModificadoId = null;
+
+        this.cargarProductosDesdeJSON().then(() => {
+            this.inicializarFormulario();
+            this.inicializarBusqueda();
+            this.actualizarTabla();
+        });
     }
 
+    async cargarProductosDesdeJSON() {
+        try {
+            const response = await fetch('../json/productos.json');
+            if (!response.ok) {
+                throw new Error('No se pudo cargar el archivo JSON.');
+            }
+            const productosJSON = await response.json();
+            this.listaDeProductos = productosJSON.map(producto => new Producto(
+                producto.id,
+                producto.marca,
+                producto.nombre,
+                producto.tipo,
+                producto.stock,
+                producto.precioFabrica,
+                producto.precioAlContado,
+                producto.precioConTarjeta
+            ));
+            this.idIncremental = this.listaDeProductos.length > 0 ? this.listaDeProductos[this.listaDeProductos.length - 1].id + 1 : 1;
+        } catch (error) {
+            console.error('Error al cargar productos:', error);
+        }
+    }
+
+
     inicializarFormulario() {
-        document.getElementById('formAgregarProducto').addEventListener('submit', (event) => {
+        document.getElementById('formAgregarProducto').addEventListener('submit', async (event) => {
             event.preventDefault();
-            this.procesarFormulario();
+            try {
+                await this.procesarFormulario();
+            } catch (error) {
+                console.error('Error al procesar el formulario:', error);
+            }
         });
     }
 
@@ -33,8 +65,8 @@ class Productos {
             this.buscarProducto();
         });
     }
-
-    procesarFormulario() {
+    
+    async procesarFormulario() {
         let marca = document.getElementById('marcaProducto').value;
         let nombre = document.getElementById('nombreProducto').value;
         let tipo = document.getElementById('tipoProducto').value;
@@ -65,20 +97,30 @@ class Productos {
         }
 
         // Actualizar el localStorage y la tabla
-        localStorage.setItem('productos', JSON.stringify(this.listaDeProductos));
-
-// Mostrar el mensaje en el modal
-        const mensaje = `Producto ${marca} ${this.productoModificadoId ? 'modificado' : 'agregado'} correctamente.`;
-        this.mostrarModalMensaje(mensaje);
-        this.actualizarTabla();
+        try {
+            await this.guardarProductos();
+            // Mostrar el mensaje en el modal
+            const mensaje = `Producto ${marca} ${this.productoModificadoId ? 'modificado' : 'agregado'} correctamente.`;
+            this.mostrarModalMensaje(mensaje);
+            this.actualizarTabla();
+        } catch (error) {
+            console.error('Error al guardar los productos:', error);
+        }
 
         // Cerrar el modal
         let modal = bootstrap.Modal.getInstance(document.getElementById('agregarProductoModal'));
         modal.hide();
     }
 
-    verificoProducto(marca, nombre, tipo) {
-        return this.listaDeProductos.some(producto => producto.marca === marca && producto.nombre === nombre && producto.tipo === tipo);
+    async guardarProductos() {
+        return new Promise((resolve, reject) => {
+            try {
+                localStorage.setItem('productos', JSON.stringify(this.listaDeProductos));
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     buscarProducto() {
@@ -96,20 +138,22 @@ class Productos {
         });
     }
 
-    eliminaProducto(id) {
+    async eliminaProducto(id) {
         // Abre el modal de confirmacion
         const confirmarEliminar = new bootstrap.Modal(document.getElementById('confirmarEliminar'));
         confirmarEliminar.show();
     
-        // Maneja la confirmación de la eliminación
-        document.getElementById('confirmarEliminarBtn').onclick = () => {
-            // Elimina el producto de la lista y del localStorage
-            this.listaDeProductos = this.listaDeProductos.filter(producto => producto.id !== id);
-            localStorage.setItem('productos', JSON.stringify(this.listaDeProductos));
-            this.actualizarTabla();
-    
-            // Cierra el modal después de la eliminacion
-            confirmarEliminar.hide();
+        document.getElementById('confirmarEliminarBtn').onclick = async () => {
+            try {
+                // Elimina el producto de la lista y del localStorage
+                this.listaDeProductos = this.listaDeProductos.filter(producto => producto.id !== id);
+                await this.guardarProductos();
+                this.actualizarTabla();
+                // Cierra el modal después de la eliminacion
+                confirmarEliminar.hide();
+            } catch (error) {
+                console.error('Error al eliminar el producto:', error);
+            }
         };
     }
 
@@ -187,7 +231,7 @@ class Productos {
         const IVA = 0.21;
         const recargoTarjeta = 0.10;
         const precioFinal = precioFabrica * (1 + IVA) * (1 + recargoTarjeta);
-        //Se redonde el precio
+        // Se redondea el precio
         return Math.round(precioFinal * 100) / 100;
     }
     

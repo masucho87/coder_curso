@@ -1,0 +1,18 @@
+[
+    {
+        "id": 1,
+        "nombre": "Maximilaino",
+        "apellido": "Lema",
+        "telefono": "156884234",
+        "email": "email@email.com",
+        "mascota": "mia"
+    },
+    {
+        "id": 2,
+        "nombre": "Johana",
+        "apellido": "Rojas",
+        "telefono": "156884233",
+        "email": "email@email.com",
+        "mascota": "Magui"
+    }
+]
