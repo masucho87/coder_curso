@@ -14,5 +14,29 @@
         "telefono": "156884233",
         "email": "email@email.com",
         "mascota": "Magui"
+    },
+    {
+        "id": 3,
+        "nombre": "Adriana",
+        "apellido": "Pucci",
+        "telefono": "156334233",
+        "email": "email@email.com",
+        "mascota": "Tea"
+    },
+    {
+        "id": 4,
+        "nombre": "Gustavo",
+        "apellido": "Lema",
+        "telefono": "156339931",
+        "email": "email@email.com",
+        "mascota": "Roma"
+    },
+    {
+        "id": 5,
+        "nombre": "Ornella",
+        "apellido": "Giordanino",
+        "telefono": "153439931",
+        "email": "email@email.com",
+        "mascota": "Cachi"
     }
 ]

@@ -99,9 +99,12 @@ class Productos {
         // Actualizar el localStorage y la tabla
         try {
             await this.guardarProductos();
-            // Mostrar el mensaje en el modal
             const mensaje = `Producto ${marca} ${this.productoModificadoId ? 'modificado' : 'agregado'} correctamente.`;
-            this.mostrarModalMensaje(mensaje);
+            Swal.fire({
+                title: "Producto Guardado",
+                text: mensaje,
+                icon: "success"
+            });
             this.actualizarTabla();
         } catch (error) {
             console.error('Error al guardar los productos:', error);
@@ -139,46 +142,76 @@ class Productos {
     }
 
     async eliminaProducto(id) {
-        // Abre el modal de confirmacion
-        const confirmarEliminar = new bootstrap.Modal(document.getElementById('confirmarEliminar'));
-        confirmarEliminar.show();
+        try {
+            const resultado = await Swal.fire({
+                title: 'Confirmar Eliminación',
+                text: '¿Estás seguro de que deseas eliminar este producto?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Eliminar',
+                cancelButtonText: 'Cancelar',
+                reverseButtons: true
+            });
     
-        document.getElementById('confirmarEliminarBtn').onclick = async () => {
-            try {
+            if (resultado.isConfirmed) {
                 // Elimina el producto de la lista y del localStorage
                 this.listaDeProductos = this.listaDeProductos.filter(producto => producto.id !== id);
                 await this.guardarProductos();
                 this.actualizarTabla();
-                // Cierra el modal después de la eliminacion
-                confirmarEliminar.hide();
-            } catch (error) {
-                console.error('Error al eliminar el producto:', error);
+    
+                Swal.fire({
+                    title: 'Eliminado',
+                    text: 'El producto ha sido eliminado exitosamente.',
+                    icon: 'success',
+                    timer: 2000
+                });
             }
-        };
+        } catch (error) {
+            console.error('Error al eliminar el producto:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Hubo un error al eliminar el producto.',
+                icon: 'error'
+            });
+        }
     }
-
+    
     mostrarModalModificacion(id) {
         const productoEncontrado = this.listaDeProductos.find(producto => producto.id === id);
-
+    
         if (!productoEncontrado) {
             console.error(`No se encontró un producto con el id ${id}.`);
             return;
         }
-
-        // Llena el formulario con los datos del producto
-        document.getElementById('marcaProducto').value = productoEncontrado.marca;
-        document.getElementById('nombreProducto').value = productoEncontrado.nombre;
-        document.getElementById('tipoProducto').value = productoEncontrado.tipo;
-        document.getElementById('stockProducto').value = productoEncontrado.stock;
-        document.getElementById('precioFabrica').value = productoEncontrado.precioFabrica;
-
-        // Establece el ID del producto a modificar
-        this.productoModificadoId = id;
-
-        // Mostrar el modal
-        const modal = new bootstrap.Modal(document.getElementById('agregarProductoModal'));
-        modal.show();
+    
+        Swal.fire({
+            title: "Confirmar Modificación",
+            text: "¿Estás seguro de modificar este producto?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Aceptar',
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Llena el formulario con los datos del producto para poder modificarlo
+                
+                document.getElementById('marcaProducto').value = productoEncontrado.marca;
+                document.getElementById('nombreProducto').value = productoEncontrado.nombre;
+                document.getElementById('tipoProducto').value = productoEncontrado.tipo;
+                document.getElementById('stockProducto').value = productoEncontrado.stock;
+                document.getElementById('precioFabrica').value = productoEncontrado.precioFabrica;
+    
+                this.productoModificadoId = id;
+    
+                // Mostrar el modal
+                const modal = new bootstrap.Modal(document.getElementById('agregarProductoModal'));
+                modal.show();
+            }
+        });
     }
+    
+    
 
     actualizarTabla() {
         const tbody = document.querySelector('.tabla tbody');
@@ -218,14 +251,6 @@ class Productos {
             });
         });
     }
-
-    mostrarModalMensaje(mensaje) {
-        const mensajeElemento = document.getElementById('mensajeContenido');
-        mensajeElemento.textContent = mensaje;
-        const modal = new bootstrap.Modal(document.getElementById('modalMensaje'));
-        modal.show();
-    }
-    
 
     precioConTarjeta(precioFabrica) {
         const IVA = 0.21;
