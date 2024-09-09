@@ -13,41 +13,19 @@ class Producto {
 
 class Productos {
     constructor() {
-        // Cargar productos desde productos.json
-        this.listaDeProductos = [];
-        this.idIncremental = 1;
+        this.listaDeProductos = this.cargaDeProductos() || [];
+        this.idIncremental = this.listaDeProductos.length > 0 ? this.listaDeProductos[this.listaDeProductos.length - 1].id + 1 : 1;
         this.productoModificadoId = null;
 
-        this.cargarProductosDesdeJSON().then(() => {
-            this.inicializarFormulario();
-            this.inicializarBusqueda();
-            this.actualizarTabla();
-        });
+        this.inicializarFormulario();
+        this.inicializarBusqueda();
+        this.actualizarTabla();
     }
 
-    async cargarProductosDesdeJSON() {
-        try {
-            const response = await fetch('../json/productos.json');
-            if (!response.ok) {
-                throw new Error('No se pudo cargar el archivo JSON.');
-            }
-            const productosJSON = await response.json();
-            this.listaDeProductos = productosJSON.map(producto => new Producto(
-                producto.id,
-                producto.marca,
-                producto.nombre,
-                producto.tipo,
-                producto.stock,
-                producto.precioFabrica,
-                producto.precioAlContado,
-                producto.precioConTarjeta
-            ));
-            this.idIncremental = this.listaDeProductos.length > 0 ? this.listaDeProductos[this.listaDeProductos.length - 1].id + 1 : 1;
-        } catch (error) {
-            console.error('Error al cargar productos:', error);
-        }
+    cargaDeProductos() {
+        const productosGuardados = localStorage.getItem('productos');
+        return productosGuardados ? JSON.parse(productosGuardados) : null;
     }
-
 
     inicializarFormulario() {
         document.getElementById('formAgregarProducto').addEventListener('submit', async (event) => {
@@ -134,9 +112,9 @@ class Productos {
             const nombreProducto = fila.querySelector('td:nth-child(3)').textContent.toLowerCase();
 
             if (nombreProducto.includes(query)) {
-                fila.style.display = ''; // Muestra la fila si coincide con la búsqueda
+                fila.style.display = ''; 
             } else {
-                fila.style.display = 'none'; // Oculta la fila si no coincide
+                fila.style.display = 'none';
             }
         });
     }
@@ -211,8 +189,6 @@ class Productos {
         });
     }
     
-    
-
     actualizarTabla() {
         const tbody = document.querySelector('.tabla tbody');
         tbody.innerHTML = '';
@@ -250,13 +226,14 @@ class Productos {
                 this.mostrarModalModificacion(id);
             });
         });
+
+        
     }
 
     precioConTarjeta(precioFabrica) {
         const IVA = 0.21;
         const recargoTarjeta = 0.10;
         const precioFinal = precioFabrica * (1 + IVA) * (1 + recargoTarjeta);
-        // Se redondea el precio
         return Math.round(precioFinal * 100) / 100;
     }
     
