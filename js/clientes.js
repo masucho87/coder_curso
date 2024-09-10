@@ -1,310 +1,223 @@
-class Cliente {
-    constructor(id, nombre, apellido, telefono, email, mascotas) {
-        this.id = id;
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.telefono = telefono;
-        this.email = email;
-        this.mascotas = mascotas;
-    }
-}
+document.addEventListener('DOMContentLoaded', () => {
+    const API_URL = '../json/clientes.json';
+    const tableBody = document.querySelector('.tablaClientes tbody');
+    const selectEliminar = document.getElementById('clienteSeleccionado');
+    const formAgregar = document.getElementById('formAgregarCliente');
+    const formEliminar = document.getElementById('formEliminarCliente');
+    const formBuscar = document.getElementById('formBuscarCliente');
+    const resultadoBusqueda = document.getElementById('resultadosBusqueda');
 
-class Clientes {
-    constructor() {
-        this.listaClientes = [];
-        this.idIncremental = 1;
-        this.mascotaCount = 0;
-        this.clienteModificadoId = null;
+    let clientes = [];
 
-        document.addEventListener('DOMContentLoaded', () => {
-            this.inicializarFormulario();
-            this.cargarClientes();
-            this.actualizarTabla();
-            this.inicializarBusqueda();
-        });
+    function guardarCliente() {
+        console.log('Guardando clientes en localStorage:', clientes);
+        localStorage.setItem('clientes', JSON.stringify(clientes));
     }
 
-    async cargarClientes() {
-        try {
-            const response = await fetch('../json/clientes.json');
-            if (!response.ok) {
-                throw new Error('No se pudo cargar el archivo JSON.');
-            }
-            const clientesJSON = await response.json();
-            console.log('Datos cargados:', clientesJSON);
-            this.listaClientes = clientesJSON.map(cliente => new Cliente(
-                cliente.id,
-                cliente.nombre,
-                cliente.apellido,
-                cliente.telefono,
-                cliente.email,
-                cliente.mascotas || []
-            ));
-            console.log('Lista de clientes:', this.listaClientes);
-            this.idIncremental = this.listaClientes.length > 0 ? this.listaClientes[this.listaClientes.length - 1].id + 1 : 1;
-            this.actualizarTabla(); //Actualizo la tabla para las llamadas
-        } catch (error) {
-            console.error('Error al cargar clientes:', error);
-        }
-    }
-    
-
-    inicializarFormulario() {
-        const form = document.getElementById('formAgregarCliente');
-        const agregarMascota = document.getElementById('agregarMascota');
-        const botonAgregar = document.getElementById('botonAgregar');
-
-        if (form) {
-            form.addEventListener('submit', (event) => {
-                event.preventDefault();
-                this.procesarFormulario();
-            });
+    async function cargarClientes() {
+        const clientesGuardados = localStorage.getItem('clientes');
+        if (clientesGuardados) {
+            console.log('Cargando clientes desde localStorage:', clientesGuardados);
+            clientes = JSON.parse(clientesGuardados);
+            mostrarClientes();
+            llenarSelectEliminar();
         } else {
-            console.error('No se encontró el formulario.');
-        }
-
-        if (agregarMascota) {
-            agregarMascota.addEventListener('click', () => {
-                this.agregarMascotaCampo();
-            });
-        } else {
-            console.error('No se encontró el botón de agregar mascota.');
-        }
-
-        if (botonAgregar) {
-            botonAgregar.addEventListener('click', () => {
-                this.limpiarFormulario();
-                this.abrirModalAgregar();
-            });            
-        } else {
-            console.error('No se encontró el botón de agregar cliente.');
-        }
-    }
-
-    abrirModalAgregar() {
-        this.limpiarFormulario();
-        const modal = new bootstrap.Modal(document.getElementById('agregarCliente'));
-        modal.show();
-    }
-
-    agregarMascotaCampo() {
-        this.mascotaCount++;
-        const container = document.getElementById('mascotasContainer');
-        if (container) {
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'form-control mb-1';
-            input.name = 'mascotas';
-            input.placeholder = 'Nombre de la mascota';
-            input.required = true;
-            container.appendChild(input);
-        } else {
-            console.error('No se encontró el contenedor de mascotas.');
-        }
-    }
-
-    async procesarFormulario() {
-        try {
-            let nombre = document.getElementById('nombreCliente').value.trim();
-            let apellido = document.getElementById('apellidoCliente').value.trim();
-            let telefono = document.getElementById('telefonoCliente').value.trim();
-            let email = document.getElementById('emailCliente').value.trim();
-        
-            let mascotas = Array.from(document.querySelectorAll('#mascotasContainer input[name="mascotas"]'))
-                .map(input => input.value.trim());
-        
-            const clienteExistente = this.listaClientes.find(cliente => 
-                cliente.nombre === nombre && cliente.apellido === apellido && cliente.id !== this.clienteModificadoId);
-        
-            const mensajeError = document.getElementById('mensajeError');
-        
-            if (mensajeError) {
-                if (clienteExistente) {
-                    mensajeError.textContent = 'El cliente con el mismo nombre y apellido ya existe. Por favor, ingresa datos diferentes.';
-                    mensajeError.classList.remove('d-none');
-                    return;
-                } else {
-                    mensajeError.classList.add('d-none');
-                }
-            } else {
-                console.error('No se encontró el elemento mensajeError.');
+            console.log('Cargando clientes desde API');
+            try {
+                const response = await fetch(API_URL);
+                clientes = await response.json();
+                console.log('Clientes cargados desde API:', clientes);
+                mostrarClientes();
+                llenarSelectEliminar();
+                guardarCliente();
+            } catch (error) {
+                console.error('Error al cargar clientes desde API:', error);
             }
-        
-            if (this.clienteModificadoId) {
-                let clienteModificado = this.listaClientes.find(cliente => cliente.id === this.clienteModificadoId);
-        
-                if (clienteModificado) {
-                    clienteModificado.nombre = nombre;
-                    clienteModificado.apellido = apellido;
-                    clienteModificado.telefono = telefono;
-                    clienteModificado.email = email;
-                    clienteModificado.mascotas = mascotas;
-                }
-        
-                this.clienteModificadoId = null;
-            } else {
-                let clienteNuevo = new Cliente(this.idIncremental, nombre, apellido, telefono, email, mascotas);
-                this.listaClientes.push(clienteNuevo);
-                this.idIncremental++;
-            }
-        
-            localStorage.setItem('clientes', JSON.stringify(this.listaClientes));
-            this.actualizarTabla();
-        
-            const modal = bootstrap.Modal.getInstance(document.getElementById('agregarCliente'));
-            if (modal) {
-                modal.hide();
-            }
-        
-            this.limpiarFormulario();
-        } catch (error) {
-            console.error('Error al procesar el formulario:', error);
-            this.mostrarMensaje(`Error al procesar el formulario: ${error.message}`);
         }
-    }
-    
-    limpiarFormulario() {
-        document.getElementById('formAgregarCliente').reset();
-        document.getElementById('mascotasContainer').innerHTML = '';
-        document.querySelector('#formAgregarCliente button[type="submit"]').textContent = 'Guardar';
     }
 
-    actualizarTabla() {
-        console.log('Actualizando tabla...');
-        const tbody = document.querySelector('.tablaClientes .table tbody');
-        if (!tbody) {
-            console.error('No se encontró el tbody.');
-            return;
-        }
-        tbody.innerHTML = '';
-    
-        this.listaClientes.forEach(cliente => {
-            let fila = `
-                <tr>
-                    <td>${cliente.id}</td>
-                    <td>${cliente.nombre}</td>
-                    <td>${cliente.apellido}</td>
-                    <td>${cliente.telefono}</td>
-                    <td>${cliente.email}</td>
-                    <td>${cliente.mascotas.join(', ')}</td>
-                </tr>
+    function eliminarClientesDeLocalStorage() {
+        console.log('Eliminando clientes de localStorage');
+        localStorage.removeItem('clientes');
+    }
+
+    function mostrarClientes() {
+        console.log('Mostrando clientes en la tabla:', clientes);
+        tableBody.innerHTML = '';
+        clientes.forEach(cliente => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${cliente.id}</td>
+                <td>${cliente.nombre}</td>
+                <td>${cliente.apellido}</td>
+                <td>${cliente.telefono}</td>
+                <td>${cliente.email}</td>
+                <td>${cliente.mascotas.join(', ')}</td>
+                <td><button class="btn btn-secondary btnModificar" data-id="${cliente.id}">Modificar</button></td>
             `;
-            tbody.innerHTML += fila;
+            tableBody.appendChild(tr);
         });
-    
-        this.agregarEventosBotones();
-    }
-    agregarEventosBotones() {
-        document.querySelectorAll('.btn-modificar').forEach(btn => {
-            btn.addEventListener('click', (event) => {
-                const id = parseInt(event.target.getAttribute('data-id'));
-                this.abrirModalModificar(id);
-            });
-        });
-    
-        document.querySelectorAll('.btn-eliminar').forEach(btn => {
-            btn.addEventListener('click', (event) => {
-                const id = parseInt(event.target.getAttribute('data-id'));
-                this.confirmarEliminacion(id);
+
+        // Añadir evento a los botones de modificar
+        document.querySelectorAll('.btnModificar').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = parseInt(e.target.getAttribute('data-id'));
+                mostrarModalModificar(id);
             });
         });
     }
 
-    abrirModalModificar(id) {
-        const cliente = this.listaClientes.find(cliente => cliente.id === id);
-        if (!cliente) {
-            console.error('Cliente no encontrado.');
-            return;
+    function llenarSelectEliminar() {
+        console.log('Llenando select para eliminar con clientes:', clientes);
+        selectEliminar.innerHTML = '<option value="">Seleccionar cliente</option>';
+        clientes.forEach(cliente => {
+            const option = document.createElement('option');
+            option.value = cliente.id;
+            option.textContent = `${cliente.nombre} ${cliente.apellido}`;
+            selectEliminar.appendChild(option);
+        });
+    }
+
+    function agregarCliente(cliente) {
+        console.log('Agregando cliente:', cliente);
+        clientes.push(cliente);
+        mostrarClientes();
+        llenarSelectEliminar();
+        guardarCliente();
+    }
+
+    async function mostrarModalModificar(id) {
+        const cliente = clientes.find(c => c.id === id);
+        if (cliente) {
+            document.getElementById('modClienteId').value = cliente.id;
+            document.getElementById('modNombreCliente').value = cliente.nombre;
+            document.getElementById('modApellidoCliente').value = cliente.apellido;
+            document.getElementById('modTelefonoCliente').value = cliente.telefono;
+            document.getElementById('modEmailCliente').value = cliente.email;
+            document.getElementById('modMascotasCliente').value = cliente.mascotas.join(', ');
+
+
+            new bootstrap.Modal(document.getElementById('modificarCliente')).show();
         }
-    
-        this.clienteModificadoId = id;
-    
-        document.getElementById('nombreCliente').value = cliente.nombre;
-        document.getElementById('apellidoCliente').value = cliente.apellido;
-        document.getElementById('telefonoCliente').value = cliente.telefono;
-        document.getElementById('emailCliente').value = cliente.email;
-    
-        const mascotasContainer = document.getElementById('mascotasContainer');
-        mascotasContainer.innerHTML = '';
-        cliente.mascotas.forEach(mascota => {
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'form-control mb-1';
-            input.name = 'mascotas';
-            input.value = mascota;
-            input.placeholder = 'Nombre de la mascota';
-            input.required = true;
-            mascotasContainer.appendChild(input);
-        });
-    
-        document.querySelector('#formAgregarCliente button[type="submit"]').textContent = 'Modificar';
-    
-        const modal = new bootstrap.Modal(document.getElementById('agregarCliente'));
-        modal.show();
     }
 
-    confirmarEliminacion(id) {
-        const confirmarModal = new bootstrap.Modal(document.getElementById('confirmarEliminar'));
-        confirmarModal.show();
-    
-        document.getElementById('confirmarEliminarBtn').onclick = () => {
-            this.eliminarCliente(id);
-            confirmarModal.hide();
+    async function editarCliente(id, nombre, apellido, telefono, email, mascotas) {
+        const index = clientes.findIndex(c => c.id === id);
+        if (index !== -1) {
+            console.log('Cliente modificado:', { id, nombre, apellido, telefono, email, mascotas });
+            clientes[index] = { id, nombre, apellido, telefono, email, mascotas };
+            mostrarClientes();
+            llenarSelectEliminar();
+            guardarCliente(); 
+            Swal.fire('Cliente modificado', '', 'success');
+        }
+    }
+
+    async function eliminarCliente(id) {
+        try {
+            console.log('Eliminando cliente con id:', id);
+            const result = await Swal.fire({
+                title: '¿Estás seguro?',
+                text: 'Esta acción no se puede deshacer.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (result.isConfirmed) {
+                clientes = clientes.filter(cliente => cliente.id !== id);
+                mostrarClientes();
+                llenarSelectEliminar();
+                eliminarClientesDeLocalStorage();
+                guardarCliente();  
+                Swal.fire('Cliente eliminado', '', 'success');
+            }
+        } catch (error) {
+            console.error('Error al eliminar cliente:', error);
+        }
+    }
+
+    function buscarCliente(criterio) {
+        console.log('Buscando clientes con criterio:', criterio);
+        resultadoBusqueda.innerHTML = '';
+        const resultado = clientes.filter(cliente => {
+            return cliente.nombre.includes(criterio) ||
+                cliente.apellido.includes(criterio) ||
+                cliente.telefono.includes(criterio) ||
+                cliente.email.includes(criterio);
+        });
+
+        if (resultado.length === 0) {
+            resultadoBusqueda.innerHTML = '<p>No se encontraron resultados.</p>';
+        } else {
+            resultadoBusqueda.innerHTML = '<ul>' +
+                resultado.map(c => `<li>${c.nombre} ${c.apellido} - ${c.telefono} - ${c.email} - Mascotas: ${c.mascotas.join(', ')}</li>`).join('') +
+                '</ul>';
+        }
+    }
+
+    formAgregar.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nombre = document.getElementById('nombreCliente').value;
+        const apellido = document.getElementById('apellidoCliente').value;
+        const telefono = document.getElementById('telefonoCliente').value;
+        const email = document.getElementById('emailCliente').value;
+        const mascotas = Array.from(document.querySelectorAll('#mascotasContainer input[name="mascotas"]')).map(input => input.value);
+
+        const nuevoCliente = {
+            id: clientes.length ? Math.max(...clientes.map(c => c.id)) + 1 : 1,
+            nombre,
+            apellido,
+            telefono,
+            email,
+            mascotas
         };
-    }
 
-    inicializarBusqueda() {
-        const formBuscar = document.getElementById('formBuscarCliente');
-        const resultadosBusqueda = document.getElementById('resultadosBusqueda');
+        console.log('Formulario de agregar cliente enviado:', nuevoCliente);
+        agregarCliente(nuevoCliente);
+        Swal.fire('Cliente agregado', '', 'success');
+        document.querySelector('#agregarCliente .btn-close').click();
+    });
 
-        if (formBuscar) {
-            formBuscar.addEventListener('submit', (event) => {
-                event.preventDefault();
-                const criterio = document.getElementById('criterioBusqueda').value.trim().toLowerCase();
-                this.buscarCliente(criterio, resultadosBusqueda);
-            });
-        } else {
-            console.error('No se encontró el formulario de búsqueda.');
+    formEliminar.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = parseInt(selectEliminar.value);
+        console.log('Formulario de eliminar cliente enviado con id:', id);
+        if (id) {
+            eliminarCliente(id);
         }
-    }
+    });
 
-    buscarCliente(criterio, resultadosBusqueda) {
-        resultadosBusqueda.innerHTML = '';
+    formBuscar.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const criterio = document.getElementById('criterioBusqueda').value;
+        console.log('Formulario de búsqueda enviado con criterio:', criterio);
+        buscarCliente(criterio);
+    });
 
-        if (criterio === '') {
-            resultadosBusqueda.textContent = 'Por favor, ingrese un criterio de búsqueda.';
-            return;
-        }
+    document.getElementById('agregarMascota').addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-control mb-1';
+        input.name = 'mascotas';
+        input.placeholder = 'Nombre de la mascota';
+        document.getElementById('mascotasContainer').appendChild(input);
+    });
 
-        const resultados = this.listaClientes.filter(cliente => 
-            cliente.nombre.toLowerCase().includes(criterio) ||
-            cliente.apellido.toLowerCase().includes(criterio) ||
-            cliente.telefono.includes(criterio) ||
-            cliente.email.toLowerCase().includes(criterio)
-        );
+    document.getElementById('formModificarCliente').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = parseInt(document.getElementById('modClienteId').value);
+        const nombre = document.getElementById('modNombreCliente').value;
+        const apellido = document.getElementById('modApellidoCliente').value;
+        const telefono = document.getElementById('modTelefonoCliente').value;
+        const email = document.getElementById('modEmailCliente').value;
+        const mascotas = document.getElementById('modMascotasCliente').value.split(',').map(m => m.trim());
 
-        if (resultados.length > 0) {
-            resultados.forEach(cliente => {
-                const div = document.createElement('div');
-                div.textContent = `ID: ${cliente.id}, Nombre: ${cliente.nombre}, Apellido: ${cliente.apellido}, Teléfono: ${cliente.telefono}, Email: ${cliente.email}, Mascotas: ${cliente.mascotas.join(', ')}`;
-                resultadosBusqueda.appendChild(div);
-            });
-        } else {
-            resultadosBusqueda.textContent = 'No se encontraron clientes que coincidan con el criterio de búsqueda.';
-        }
-    }
-    
-    eliminarCliente(id) {
-        this.listaClientes = this.listaClientes.filter(cliente => cliente.id !== id);
-        localStorage.setItem('clientes', JSON.stringify(this.listaClientes));
-        this.actualizarTabla();
-    }
-    
-    mostrarMensaje(mensaje) {
-        const modalMensaje = new bootstrap.Modal(document.getElementById('modalMensaje'));
-        document.getElementById('mensajeContenido').textContent = mensaje;
-        modalMensaje.show();
-    }
-}
+        console.log('Formulario de modificar cliente enviado:', { id, nombre, apellido, telefono, email, mascotas });
+        editarCliente(id, nombre, apellido, telefono, email, mascotas);
+        document.querySelector('#modificarCliente .btn-close').click();
+    });
 
-let misClientes = new Clientes();
+    cargarClientes();
+});

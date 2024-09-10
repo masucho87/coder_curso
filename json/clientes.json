@@ -1,11 +1,11 @@
 [
     {
         "id": 1,
-        "nombre": "Maximilaino",
+        "nombre": "Maximiliano",
         "apellido": "Lema",
         "telefono": "156884234",
         "email": "email@email.com",
-        "mascota": "mia"
+        "mascotas": ["mia"]
     },
     {
         "id": 2,
@@ -13,7 +13,7 @@
         "apellido": "Rojas",
         "telefono": "156884233",
         "email": "email@email.com",
-        "mascota": "Magui"
+        "mascotas": ["Magui"]
     },
     {
         "id": 3,
@@ -21,7 +21,7 @@
         "apellido": "Pucci",
         "telefono": "156334233",
         "email": "email@email.com",
-        "mascota": "Tea"
+        "mascotas": ["Tea"]
     },
     {
         "id": 4,
@@ -29,7 +29,7 @@
         "apellido": "Lema",
         "telefono": "156339931",
         "email": "email@email.com",
-        "mascota": "Roma"
+        "mascotas": ["Roma"]
     },
     {
         "id": 5,
@@ -37,6 +37,6 @@
         "apellido": "Giordanino",
         "telefono": "153439931",
         "email": "email@email.com",
-        "mascota": "Cachi"
+        "mascotas": ["Cachi"]
     }
 ]
