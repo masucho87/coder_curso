@@ -13,21 +13,41 @@ class Producto {
 
 class Productos {
     constructor() {
-        this.listaDeProductos = this.cargaDeProductos() || [];
-        this.idIncremental = this.listaDeProductos.length > 0 ? this.listaDeProductos[this.listaDeProductos.length - 1].id + 1 : 1;
+        this.listaDeProductos = [];
+        this.idIncremental = 1;
         this.productoModificadoId = null;
 
+        this.cargarProductosDesdeJSON();
         this.inicializarFormulario();
         this.inicializarBusqueda();
-        this.actualizarTabla();
     }
 
-    cargaDeProductos() {
+    async cargarProductosDesdeJSON() {
+        try {
+            const response = await fetch('../json/productos.json');
+            console.log('productos cargados');
+            if (!response.ok) {
+                throw new Error('Error');
+            }
+            const productosDesdeJSON = await response.json();
+            console.log('productos cargados');
+            this.listaDeProductos = productosDesdeJSON;
+            this.idIncremental = this.listaDeProductos.length > 0 ? this.listaDeProductos[this.listaDeProductos.length - 1].id + 1 : 1;
+            this.actualizarTabla();
+        } catch (error) {
+            console.error('Error al cargar productos desde JSON:', error);
+        }
+    }
+
+    async cargarProductosDesdeLocalStorage() {
         const productosGuardados = localStorage.getItem('productos');
-        return productosGuardados ? JSON.parse(productosGuardados) : null;
+        if (productosGuardados) {
+            this.listaDeProductos = JSON.parse(productosGuardados);
+            this.idIncremental = this.listaDeProductos.length > 0 ? this.listaDeProductos[this.listaDeProductos.length - 1].id + 1 : 1;
+        }
     }
 
-    inicializarFormulario() {
+    async inicializarFormulario() {
         document.getElementById('formAgregarProducto').addEventListener('submit', async (event) => {
             event.preventDefault();
             try {
@@ -43,19 +63,40 @@ class Productos {
             this.buscarProducto();
         });
     }
-    
+
+    async validarMarcaNombre(marca, nombre) {
+        const productoExistente = this.listaDeProductos.find(producto => 
+            producto.marca === marca && producto.nombre === nombre && producto.id !== this.productoModificadoId
+        );
+        
+        if (productoExistente) {
+            await Swal.fire({
+                title: 'Error',
+                text: 'Ya existe un producto con esta marca y nombre.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return true;
+        }
+        return false;
+    }
+
     async procesarFormulario() {
-        let marca = document.getElementById('marcaProducto').value;
-        let nombre = document.getElementById('nombreProducto').value;
-        let tipo = document.getElementById('tipoProducto').value;
-        let stock = document.getElementById('stockProducto').value;
-        let precioFabrica = document.getElementById('precioFabrica').value;
+        let marca = document.getElementById('marcaProducto').value.trim();
+        let nombre = document.getElementById('nombreProducto').value.trim();
+        let tipo = document.getElementById('tipoProducto').value.trim();
+        let stock = document.getElementById('stockProducto').value.trim();
+        let precioFabrica = document.getElementById('precioFabrica').value.trim();
+
+        if (await this.validarMarcaNombre(marca, nombre)) {
+            return; // Sale si la validacion de la marca y el nombre falla.
+        }
 
         let precioConTarjeta = this.precioConTarjeta(precioFabrica);
         let precioAlContado = this.precioAlContado(precioFabrica);
 
         if (this.productoModificadoId) {
-            // Modificar producto existente
+            
             let productoModificado = this.listaDeProductos.find(producto => producto.id === this.productoModificadoId);
             productoModificado.marca = marca;
             productoModificado.nombre = nombre;
@@ -65,32 +106,41 @@ class Productos {
             productoModificado.precioConTarjeta = precioConTarjeta;
             productoModificado.precioAlContado = precioAlContado;
 
-            // Limpiar ID de producto modificado
             this.productoModificadoId = null;
         } else {
-            // Agregar nuevo producto
+            if (!marca || !nombre || !tipo || isNaN(stock) || isNaN(precioFabrica)) {
+                await Swal.fire({
+                    title: 'Error',
+                    text: 'Datos de formulario no válidos',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return; // Salimos si hay datos invalidos
+            }
+            
             let productoNuevo = new Producto(this.idIncremental, marca, nombre, tipo, stock, precioFabrica, precioAlContado, precioConTarjeta);
             this.listaDeProductos.push(productoNuevo);
             this.idIncremental++;
         }
 
-        // Actualizar el localStorage y la tabla
+        // guarda los productos en localStorage
         try {
             await this.guardarProductos();
-            const mensaje = `Producto ${marca} ${this.productoModificadoId ? 'modificado' : 'agregado'} correctamente.`;
-            Swal.fire({
-                title: "Producto Guardado",
-                text: mensaje,
-                icon: "success"
-            });
-            this.actualizarTabla();
+            console.log("Productos guardados exitosamente.");
         } catch (error) {
-            console.error('Error al guardar los productos:', error);
+            console.error("Error al guardar los productos: ", error);
         }
 
-        // Cerrar el modal
+        
+        this.limpiarFormulario();
+
         let modal = bootstrap.Modal.getInstance(document.getElementById('agregarProductoModal'));
         modal.hide();
+        this.actualizarTabla();
+    }
+
+    limpiarFormulario() {
+        document.getElementById('formAgregarProducto').reset();
     }
 
     async guardarProductos() {
@@ -112,7 +162,7 @@ class Productos {
             const nombreProducto = fila.querySelector('td:nth-child(3)').textContent.toLowerCase();
 
             if (nombreProducto.includes(query)) {
-                fila.style.display = ''; 
+                fila.style.display = '';
             } else {
                 fila.style.display = 'none';
             }
@@ -130,13 +180,13 @@ class Productos {
                 cancelButtonText: 'Cancelar',
                 reverseButtons: true
             });
-    
+
             if (resultado.isConfirmed) {
                 // Elimina el producto de la lista y del localStorage
                 this.listaDeProductos = this.listaDeProductos.filter(producto => producto.id !== id);
                 await this.guardarProductos();
                 this.actualizarTabla();
-    
+
                 Swal.fire({
                     title: 'Eliminado',
                     text: 'El producto ha sido eliminado exitosamente.',
@@ -153,15 +203,15 @@ class Productos {
             });
         }
     }
-    
+
     mostrarModalModificacion(id) {
         const productoEncontrado = this.listaDeProductos.find(producto => producto.id === id);
-    
+
         if (!productoEncontrado) {
             console.error(`No se encontró un producto con el id ${id}.`);
             return;
         }
-    
+
         Swal.fire({
             title: "Confirmar Modificación",
             text: "¿Estás seguro de modificar este producto?",
@@ -173,26 +223,26 @@ class Productos {
         }).then((result) => {
             if (result.isConfirmed) {
                 // Llena el formulario con los datos del producto para poder modificarlo
-                
+
                 document.getElementById('marcaProducto').value = productoEncontrado.marca;
                 document.getElementById('nombreProducto').value = productoEncontrado.nombre;
                 document.getElementById('tipoProducto').value = productoEncontrado.tipo;
                 document.getElementById('stockProducto').value = productoEncontrado.stock;
                 document.getElementById('precioFabrica').value = productoEncontrado.precioFabrica;
-    
+
                 this.productoModificadoId = id;
-    
+
                 // Mostrar el modal
                 const modal = new bootstrap.Modal(document.getElementById('agregarProductoModal'));
                 modal.show();
             }
         });
     }
-    
+
     actualizarTabla() {
         const tbody = document.querySelector('.tabla tbody');
         tbody.innerHTML = '';
-    
+
         this.listaDeProductos.forEach(producto => {
             let fila = `
                 <tr>
@@ -210,39 +260,29 @@ class Productos {
             `;
             tbody.innerHTML += fila;
         });
-    
-        // listener a todos los botones de eliminacion
-        document.querySelectorAll('.btn-eliminar').forEach(button => {
-            button.addEventListener('click', (event) => {
-                const id = parseInt(event.target.getAttribute('data-id'));
+
+        this.inicializarBotonesEliminar();
+        this.inicializarBotonesModificar();
+    }
+
+    inicializarBotonesEliminar() {
+        document.querySelectorAll('.btn-eliminar').forEach(boton => {
+            boton.addEventListener('click', (event) => {
+                const id = parseInt(event.target.dataset.id);
                 this.eliminaProducto(id);
             });
         });
+    }
 
-        // listener a todos los botones de modificacion
-        document.querySelectorAll('.btn-modificar').forEach(button => {
-            button.addEventListener('click', (event) => {
-                const id = parseInt(event.target.getAttribute('data-id'));
+    inicializarBotonesModificar() {
+        document.querySelectorAll('.btn-modificar').forEach(boton => {
+            boton.addEventListener('click', (event) => {
+                const id = parseInt(event.target.dataset.id);
                 this.mostrarModalModificacion(id);
             });
         });
-
-        
-    }
-
-    precioConTarjeta(precioFabrica) {
-        const IVA = 0.21;
-        const recargoTarjeta = 0.10;
-        const precioFinal = precioFabrica * (1 + IVA) * (1 + recargoTarjeta);
-        return Math.round(precioFinal * 100) / 100;
-    }
-    
-
-    precioAlContado(precioFabrica) {
-        const IVA = 0.21;
-        return precioFabrica * (1 + IVA);
     }
 }
 
-let miProductos = new Productos();
-miProductos.actualizarTabla();
+// Inicializar productos
+const productos = new Productos();

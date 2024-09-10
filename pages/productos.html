@@ -98,50 +98,44 @@
             </div>
         </section>
 
-        <!-- Modal para agregar producto -->
-        <div class="modal fade" id="agregarProductoModal" tabindex="-1" aria-labelledby="agregarProductoModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="agregarProductoModalLabel">Agregar Producto</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <!-- Modal -->
+<div class="modal fade" id="agregarProductoModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Agregar Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formAgregarProducto">
+                    <div class="mb-3">
+                        <label for="marcaProducto" class="form-label">Marca</label>
+                        <input type="text" class="form-control" id="marcaProducto" required>
                     </div>
-                    <div class="modal-body">
-                        <form id="formAgregarProducto">
-                            <div class="mb-3">
-                                <label for="marcaProducto" class="form-label">Marca</label>
-                                <input type="text" class="form-control" id="marcaProducto" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="nombreProducto" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="nombreProducto" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="tipoProducto" class="form-label">Tipo</label>
-                                <input type="text" class="form-control" id="tipoProducto" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="stockProducto" class="form-label">Stock</label>
-                                <input type="number" class="form-control" id="stockProducto" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="precioFabrica" class="form-label">Precio Fabrica</label>
-                                <input type="number" class="form-control" id="precioFabrica" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="precioContado" class="form-label">Precio Al Contado</label>
-                                <input type="number" class="form-control" id="precioContado" disabled required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="precioTarjeta" class="form-label">Precio Con Tarjeta</label>
-                                <input type="number" class="form-control" id="precioTarjeta" disabled required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Guardar</button>
-                        </form>
+                    <div class="mb-3">
+                        <label for="nombreProducto" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombreProducto" required>
                     </div>
-                </div>
+                    <div class="mb-3">
+                        <label for="tipoProducto" class="form-label">Tipo</label>
+                        <input type="text" class="form-control" id="tipoProducto" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="stockProducto" class="form-label">Stock</label>
+                        <input type="number" class="form-control" id="stockProducto" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="precioFabrica" class="form-label">Precio de Fábrica</label>
+                        <input type="number" class="form-control" id="precioFabrica" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Agregar</button>
+                    <button type="button" id="cancelarFormulario" class="btn btn-secondary">Cancelar</button>
+                </form>
             </div>
         </div>
+    </div>
+</div>
+
 
         <!-- Modal para eliminar -->
         <div class="modal fade" id="confirmarEliminar" tabindex="-1" aria-labelledby="confirmarEliminarModalLabel" aria-hidden="true">
