@@ -78,7 +78,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function clienteExiste(nombre, apellido, telefono, email) {
+        return clientes.some(cliente =>
+            cliente.nombre === nombre &&
+            cliente.apellido === apellido &&
+            cliente.telefono === telefono &&
+            cliente.email === email
+        );
+    }
+
     function agregarCliente(cliente) {
+        if (clienteExiste(cliente.nombre, cliente.apellido, cliente.telefono, cliente.email)) {
+            Swal.fire({
+                title: 'Cliente ya existe',
+                text: 'El cliente ya está agregado a la lista.',
+                icon: 'warning',
+                confirmButtonText: 'Aceptar'
+            });
+            return;
+        }
+
         console.log('Agregando cliente:', cliente);
         clientes.push(cliente);
         mostrarClientes();
@@ -95,7 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('modTelefonoCliente').value = cliente.telefono;
             document.getElementById('modEmailCliente').value = cliente.email;
             document.getElementById('modMascotasCliente').value = cliente.mascotas.join(', ');
-
 
             new bootstrap.Modal(document.getElementById('modificarCliente')).show();
         }
@@ -156,29 +174,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 '</ul>';
         }
     }
+formAgregar.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const nombre = document.getElementById('nombreCliente').value;
+    const apellido = document.getElementById('apellidoCliente').value;
+    const telefono = document.getElementById('telefonoCliente').value;
+    const email = document.getElementById('emailCliente').value;
+    const mascotas = Array.from(document.querySelectorAll('#mascotasContainer input[name="mascotas"]')).map(input => input.value);
 
-    formAgregar.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const nombre = document.getElementById('nombreCliente').value;
-        const apellido = document.getElementById('apellidoCliente').value;
-        const telefono = document.getElementById('telefonoCliente').value;
-        const email = document.getElementById('emailCliente').value;
-        const mascotas = Array.from(document.querySelectorAll('#mascotasContainer input[name="mascotas"]')).map(input => input.value);
+    const nuevoCliente = {
+        id: clientes.length ? Math.max(...clientes.map(c => c.id)) + 1 : 1,
+        nombre,
+        apellido,
+        telefono,
+        email,
+        mascotas
+    };
 
-        const nuevoCliente = {
-            id: clientes.length ? Math.max(...clientes.map(c => c.id)) + 1 : 1,
-            nombre,
-            apellido,
-            telefono,
-            email,
-            mascotas
-        };
+    console.log('Formulario de agregar cliente enviado:', nuevoCliente);
+    agregarCliente(nuevoCliente);
 
-        console.log('Formulario de agregar cliente enviado:', nuevoCliente);
-        agregarCliente(nuevoCliente);
-        Swal.fire('Cliente agregado', '', 'success');
-        document.querySelector('#agregarCliente .btn-close').click();
-    });
+    // Limpiar campos del formulario
+    formAgregar.reset();
+    document.getElementById('mascotasContainer').innerHTML = '<input type="text" class="form-control mb-1" name="mascotas" placeholder="Nombre de la mascota">';
+    document.querySelector('#agregarCliente .btn-close').click();  // Cerrar el modal
+});
 
     formEliminar.addEventListener('submit', (e) => {
         e.preventDefault();

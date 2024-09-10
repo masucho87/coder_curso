@@ -164,8 +164,9 @@
                                     <input type="text" class="form-control mb-1" name="mascotas" placeholder="Nombre de la mascota" required>
                                 </div>
                             </div>
-                            <button type="button" id="agregarMascota" class="btn btn-secondary">Agregar otra mascota</button>
-                            <button type="submit" class="btn btn-primary">Guardar</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" id="agregarMascota" class="btn btn-danger">Agregar otra mascota</button>
+                            <button type="submit" class="btn btn-success">Guardar</button>
                         </form>
                     </div>
                 </div>
@@ -189,6 +190,7 @@
                             <!-- Opciones se llenarán dinámicamente con JavaScript -->
                         </select>
                     </div>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-danger">Eliminar</button>
                 </form>
             </div>
