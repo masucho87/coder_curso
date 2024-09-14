@@ -7,7 +7,7 @@ html, body {
 }
 
 .logo {
-  width: 40px;
+  max-width: 40px;
   height: auto;
 }
 
