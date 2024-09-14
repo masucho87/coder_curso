@@ -11,6 +11,11 @@ html, body {
   height: auto;
 }
 
+.navbar {
+  padding: 0.5rem 1rem; /* Ajusta el padding del navbar */
+  height: 60px; /* Establece una altura fija */
+}
+
 .wrapper {
   display: flex;
   flex-direction: column;
