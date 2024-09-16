@@ -11,10 +11,17 @@ html, body {
   height: auto;
 }
 
+
 .navbar {
   padding: 0.5rem 1rem; /* Ajusta el padding del navbar */
   height: 60px; /* Establece una altura fija */
 }
+
+.nav-link.active {
+  font-weight: bold;
+  border-bottom: 2px solid yellow; /* Resalta el enlace activo */
+}
+
 
 .wrapper {
   display: flex;
@@ -45,9 +52,6 @@ html, body {
   transform: scale(1.1);
 }
 
-.wrapper {
-  /* Estilo para el placeholder */
-}
 .wrapper .title-productos {
   margin-top: -200px;
 }
